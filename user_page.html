@@ -6,18 +6,30 @@
     <title>User Page</title>
     <link rel="icon" href="images/logo.png" type="image/png" />
     <link rel="stylesheet" href="user_page.css" />
+    <link rel="stylesheet" href="main.css">
   </head>
 
   <body>
+    <header>
+            <div class="header-content">
+                <img src="images/logo.jpg" alt="StoryLense Logo" class="logo">
+                <div class="search-container">
+                    <input type="text" class="search-bar" placeholder="Search for movies...">
+                </div>
+                <a href="#" class="home-btn">Home Page</a>
+            </div>
+        </header>
+
+
     <!-- HEADER with fade animation -->
     <div class="fadeInUp-animation">
-      <header class="top-header">
+      <div class="top-header">
         <div class="profile-section">
           <img src="images/profile.jpg" alt="Profile" />
           <h1>welcome lamya</h1>
         </div>
         <button class="hamburger" id="hamburger">☰</button>
-      </header>
+    </div>
 
       <!-- Hamburger Side Menu -->
       <nav class="side-menu" id="sideMenu">
@@ -129,6 +141,19 @@
         </div>
       </div>
     </div>
+     <footer>
+            <div class="footer-content">
+                <div class="vision-title">OUR VISION</div>
+                <div class="vision-text">
+                    At StoryLense, we make rating movies simple, engaging, and accessible for everyone
+                </div>
+                <div class="copyright">&copy; StoryLense. All rights reserved.</div>
+                <div class="social-icons">
+                    <img src="images/x-logo.png" alt="X" class="social-icon">
+                    <img src="images/instagram-logo.png" alt="Instagram" class="social-icon">
+                </div>
+            </div>
+        </footer>
 
     <!-- ✅ STAGGERED CARD ANIMATION -->
     <script>

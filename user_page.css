@@ -1,5 +1,4 @@
 body {
-  background: linear-gradient(to bottom right, #0b0129, #290c6d);
   color: white;
   overflow-x: hidden;
  overflow-y: auto; /* ensures stable scroll without flicker */
@@ -57,7 +56,8 @@ h1 img:hover {
 }
 
 h2 {
-  color: #cdb9ff;
+    margin-bottom: 1.5rem;
+  color: #f7f7f7;
   letter-spacing: 1px;
 }
 
