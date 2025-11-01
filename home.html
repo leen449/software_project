@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+
+    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <img src="images/logo.jpg" alt="StoryLense Logo" class="logo">
+            <div class="search-container">
+                <input type="text" class="search-bar" placeholder="Search for movies...">
+            </div>
+            <a href="#" class="home-btn">Home Page</a>
+            <img src="images/user.png" alt="User Profile" class="user-pic">
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Trending  -->
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">Trending Now</h2>
+            </div>
+            <div class="scroll-container">
+                <button class="scroll-btn scroll-btn-left" onclick="scrollMovies('trending', -1)">‹</button>
+                <div class="movies-wrapper" id="trending">
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Sample Title</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2025</span>
+                                <span>•</span>
+                                <span class="movie-category">Action</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Another Movie</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2024</span>
+                                <span>•</span>
+                                <span class="movie-category">Drama</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Third Result</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2023</span>
+                                <span>•</span>
+                                <span class="movie-category">Thriller</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Epic Adventure</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2024</span>
+                                <span>•</span>
+                                <span class="movie-category">Adventure</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Mystery Film</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2025</span>
+                                <span>•</span>
+                                <span class="movie-category">Mystery</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="scroll-btn scroll-btn-right" onclick="scrollMovies('trending', 1)">›</button>
+            </div>
+        </div>
+
+        <!-- Action -->
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">Action Movies</h2>
+            </div>
+            <div class="scroll-container">
+                <button class="scroll-btn scroll-btn-left" onclick="scrollMovies('action', -1)">‹</button>
+                <div class="movies-wrapper" id="action">
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Action Hero</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2024</span>
+                                <span>•</span>
+                                <span class="movie-category">Action</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Fast Chase</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2023</span>
+                                <span>•</span>
+                                <span class="movie-category">Action</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Combat Zone</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2025</span>
+                                <span>•</span>
+                                <span class="movie-category">Action</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Street Fighter</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2024</span>
+                                <span>•</span>
+                                <span class="movie-category">Action</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Last Mission</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2023</span>
+                                <span>•</span>
+                                <span class="movie-category">Action</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="scroll-btn scroll-btn-right" onclick="scrollMovies('action', 1)">›</button>
+            </div>
+        </div>
+
+        <!-- Drama -->
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">Drama</h2>
+            </div>
+            <div class="scroll-container">
+                <button class="scroll-btn scroll-btn-left" onclick="scrollMovies('drama', -1)">‹</button>
+                <div class="movies-wrapper" id="drama">
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Life Story</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2024</span>
+                                <span>•</span>
+                                <span class="movie-category">Drama</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Emotional Journey</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2025</span>
+                                <span>•</span>
+                                <span class="movie-category">Drama</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Family Ties</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2023</span>
+                                <span>•</span>
+                                <span class="movie-category">Drama</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">Heart & Soul</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2024</span>
+                                <span>•</span>
+                                <span class="movie-category">Drama</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="movie-card">
+                        <div class="movie-poster">Poster</div>
+                        <div class="movie-info">
+                            <div class="movie-title">The Struggle</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2025</span>
+                                <span>•</span>
+                                <span class="movie-category">Drama</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="scroll-btn scroll-btn-right" onclick="scrollMovies('drama', 1)">›</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="vision-title">OUR VISION</div>
+            <div class="vision-text">
+                At StoryLense, we make rating movies simple, engaging, and accessible for everyone
+            </div>
+            <div class="copyright">&copy; StoryLense. All rights reserved.</div>
+            <div class="social-icons">
+                <img src="images/x-logo.png" alt="X" class="social-icon">
+                <img src="images/instagram-logo.png" alt="Instagram" class="social-icon">
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function scrollMovies(categoryId, direction) {
+            const container = document.getElementById(categoryId);
+            const scrollAmount = 300;
+            container.scrollBy({
+                left: direction * scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</body>
+</html>
