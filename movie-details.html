@@ -304,43 +304,41 @@
         }
       }
 
-      /* 1) توازن الطول بين البوستر وكارد المعلومات + محاذاة وسطية */
+      /* 1) 
       .mdp-hero {
-        grid-template-columns: 360px 1fr; /* يمين أوسع شوي */
-        align-items: center; /* يوسّط الكارد مع البوستر */
+        grid-template-columns: 360px 1fr; 
+        align-items: center; 
         gap: 32px;
       }
 
-      /* 2) ثبّتي ارتفاع البوستر وخليه مغطّي بالكامل */
+      
       .mdp-poster {
         width: 100%;
-        height: 520px; /* طول واضح وثابت على الدسك توب */
-        aspect-ratio: auto; /* ألغِ النسبة القديمة */
-        object-fit: cover; /* قصّ الصورة بدل ما تتمدد */
+        height: 520px; 
+        aspect-ratio: auto; 
+        object-fit: cover; 
         border-radius: 18px;
       }
 
-      /* 3) خليه كارد ممتد بنفس ارتفاع البوستر ومحتواه في الوسط */
+      
       .mdp-info {
-        min-height: 520px; /* يساوي طول البوستر */
+        min-height: 520px; 
         display: flex;
         flex-direction: column;
-        justify-content: center; /* يوسّط العنوان/الوصف/النجوم عموديًا */
+        justify-content: center; 
         padding: 26px 28px;
       }
 
-      /* 4) وسّعي الوصف وخليه سطور أكثر مع قصّة أنيقة لو زاد */
       .mdp-desc {
         color: var(--mdp-dim);
         font-size: 15.5px;
         margin-bottom: 18px;
         display: -webkit-box;
-        -webkit-line-clamp: 4; /* اعرض حتى 4 سطور */
+        -webkit-line-clamp: 4; 
         -webkit-box-orient: vertical;
         overflow: hidden;
       }
 
-      /* 5) رتّبي الميتا والنجوم لين يصير السطر مشدود وواضح */
       .mdp-meta {
         margin: 10px 0 14px;
         gap: 10px 14px;
@@ -352,7 +350,7 @@
         margin-top: 16px;
       }
 
-      /* 6) على الشاشات الصغيرة رجّعي كل شيء مرن */
+      
       @media (max-width: 900px) {
         .mdp-hero {
           grid-template-columns: 1fr;
@@ -369,28 +367,28 @@
         }
         .mdp-desc {
           -webkit-line-clamp: 6;
-        } /* سطور أكثر على الموبايل */
+        } 
       }
 
-      /* طول مناسب للبوستر وللوداعه */
+  
       .mdp-hero {
         grid-template-columns: 320px 1fr;
       }
 
-      /* وصف أطول ومريح للقراءة */
+      
       .mdp-desc {
         color: var(--mdp-dim);
         font-size: 16px;
         line-height: 1.75;
         margin-bottom: 18px;
-        max-width: 62ch; /* عرض نص مثالي */
+        max-width: 62ch; 
         display: -webkit-box;
-        -webkit-line-clamp: 8; /* بدل 4 → ثمان سطور */
+        -webkit-line-clamp: 8; 
         -webkit-box-orient: vertical;
         overflow: hidden;
       }
 
-      /* لو تبين الوصف بدون أي قصّ نهائيًا فافتحيه كذا: */
+      
       /* .mdp-desc{ display:block; -webkit-line-clamp:unset; overflow:visible; } */
 
       .mdp-chip {
@@ -435,13 +433,13 @@
         box-shadow: 0 8px 25px rgba(0, 183, 255, 0.25);
       }
 
-      /* نفس overlay حق صاحبتك */
+      
       #rate-modal.mdp-modal {
         background: rgba(0, 0, 0, 0.6);
         backdrop-filter: blur(10px);
       }
 
-      /* صندوق المودال بنفس اللون والحجم والأنيميشن */
+      
       #rate-modal .mdp-modal-card {
         background: #1e1442;
         color: #fff;
@@ -453,14 +451,14 @@
         animation: modalFadeIn 0.3s ease;
       }
 
-      /* عنوان المودال */
+      
       #rate-modal .mdp-modal-title {
         color: #e6dcff;
         margin: 0 0 10px;
         text-align: left;
       }
 
-      /* راديو First/Rewatch بنفس الجو */
+      
       #rate-modal .mdp-radio {
         background: transparent;
         border: 1px solid rgba(255, 255, 255, 0.15);
@@ -470,7 +468,7 @@
         accent-color: #7c5bff;
       }
 
-      /* لو عندك حقول (مستقبلاً) تصير زي حقتها */
+      
       #rate-modal .mdp-form input,
       #rate-modal .mdp-form textarea {
         width: 100%;
@@ -485,7 +483,7 @@
         color: #fff;
       }
 
-      /* زر الإرسال بنفس لونهم والهوفر */
+      
       #rate-modal .mdp-btn {
         background: #7c5bff;
         box-shadow: none;
@@ -499,7 +497,7 @@
         box-shadow: none;
       }
 
-      /* أنيميشن الدخول */
+      
       @keyframes modalFadeIn {
         from {
           opacity: 0;
@@ -511,7 +509,7 @@
         }
       }
 
-      /* زر Cancel */
+  
       .mdp-cancel {
         background: rgba(255, 255, 255, 0.08);
         color: #e6dcff;
@@ -677,15 +675,15 @@
         const HIDE_AFTER = 3000;
 
         function showToast() {
-          // امسحي أي inline style سبق وحطيناه
+          
           toast.removeAttribute("style");
-          // فعّلي :target
+          
           location.hash = SUCCESS_HASH;
         }
 
         function hideToastAfterDelay(ms = HIDE_AFTER) {
           setTimeout(() => {
-            // اخفي التوست مؤقتًا ثم شيّلي الهاش
+            
             toast.style.opacity = "0";
             toast.style.pointerEvents = "none";
             history.replaceState(null, "", location.pathname + location.search);
@@ -698,7 +696,7 @@
           hideToastAfterDelay();
         });
 
-        // لو تم فتح الصفحة وهي على #rate-success (نادرًا)
+        
         document.addEventListener("DOMContentLoaded", () => {
           if (location.hash === "#" + SUCCESS_HASH) {
             toast.removeAttribute("style");
@@ -706,7 +704,7 @@
           }
         });
 
-        // ولو تغيّر الهاش لأي سبب لـ #rate-success
+        
         window.addEventListener("hashchange", () => {
           if (location.hash === "#" + SUCCESS_HASH) {
             toast.removeAttribute("style");
@@ -737,3 +735,4 @@
     </footer>
   </body>
 </html>
+
