@@ -1,8 +1,9 @@
 body {
   color: white;
   overflow-x: hidden;
- overflow-y: auto; /* ensures stable scroll without flicker */
-  overscroll-behavior: none; }
+  overflow-y: auto; /* ensures stable scroll without flicker */
+  overscroll-behavior: none;
+}
 
 /* --- Smooth Fade In Up Animation (for header only) --- */
 @keyframes fadeInUp {
@@ -56,7 +57,7 @@ h1 img:hover {
 }
 
 h2 {
-    margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
   color: #f7f7f7;
   letter-spacing: 1px;
 }
@@ -72,7 +73,7 @@ h2 {
   margin: 0 auto;
   height: auto;
   padding-bottom: 20px; /* brings shelf closer to cards */
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 /* --- Card Styles --- */
@@ -294,12 +295,15 @@ h2 {
   padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: transform 0.12s ease-in-out, box-shadow 0.2s ease-in-out,
+    opacity 0.2s ease-in-out;
+  box-shadow: 0 8px 20px rgba(124, 92, 255, 0.35);
   font-weight: 600;
 }
 
 .modal-buttons button:hover {
-  background: #a08bff;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(124, 92, 255, 0.45);
 }
 
 @keyframes modalFadeIn {
@@ -405,9 +409,61 @@ h2 {
 
 .side-menu ul li a:hover::after {
   width: 60%; /* how wide the underline grows */
-  left: 50%;  /* stays centered */
+  left: 50%; /* stays centered */
 }
 
 .side-menu.open {
   right: 0;
+}
+.settings-page {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  background: rgba(20, 10, 50, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+  color: #f5eaff;
+}
+
+.settings-page h2 {
+  color: #cdb9ff;
+  margin-top: 30px;
+  font-size: 1.3rem;
+}
+
+.settings-page label {
+  display: block;
+  margin-top: 15px;
+  font-size: 0.95rem;
+}
+
+.settings-page input,
+.settings-page textarea,
+.settings-page select {
+  width: 100%;
+  margin-top: 5px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #2a1d59;
+  color: white;
+  font-family: inherit;
+}
+
+.save-btn {
+  margin-top: 25px;
+  background: #7c5bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.12s ease-in-out, box-shadow 0.2s ease-in-out,
+    opacity 0.2s ease-in-out;
+  box-shadow: 0 8px 20px rgba(124, 92, 255, 0.35);
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(124, 92, 255, 0.45);
 }
