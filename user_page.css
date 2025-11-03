@@ -18,7 +18,7 @@ body {
 }
 
 .fadeInUp-animation {
-  animation: fadeInUp 1.2s ease-out forwards;
+  animation: fadeInUp 1.2s ease forwards;
   will-change: transform, opacity;
   position: relative;
   backface-visibility: hidden;
@@ -40,7 +40,7 @@ h1 img {
   border-radius: 50%;
   vertical-align: middle;
   margin-right: 15px;
-  transition: transform 0.4s ease, box-shadow 0.4s ease; /* smooth transition for both */
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
 /* Glow + scale on hover */
@@ -66,13 +66,13 @@ h2 {
 .container {
   display: flex;
   justify-content: center;
-  align-items: flex-end; /* ensures all cards line up at the bottom */
+  align-items: flex-end;
   overflow-x: hidden;
   gap: 10px;
   width: 50%;
   margin: 0 auto;
   height: auto;
-  padding-bottom: 20px; /* brings shelf closer to cards */
+  padding-bottom: 20px;
   overflow: hidden;
 }
 
@@ -83,13 +83,10 @@ h2 {
   overflow: hidden;
   cursor: pointer;
   position: relative;
-  transition: flex 0.5s ease;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-
-  /* --- Staggered card animation --- */
   opacity: 0;
   transform: translateY(25px);
-  transition: flex 0.5s ease, opacity 0.6s ease, transform 0.6s ease;
+  transition: all 0.5s ease;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 .card.show {
@@ -102,26 +99,27 @@ h2 {
   height: 400px;
   object-fit: cover;
   border-radius: 30px;
-  transition: filter 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 /* Expand on hover */
 .card:hover {
   flex: 1;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(124, 92, 255, 0.25);
 }
 
 .card:hover img {
   filter: brightness(0.8) blur(2px);
 }
 
-/* Overlay info */
 .card-content {
   position: absolute;
   bottom: 30px;
   left: 20px;
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition: all 0.4s ease;
   text-align: left;
 }
 
@@ -147,7 +145,7 @@ h2 {
   position: relative;
   width: 80%;
   height: 40px;
-  margin: -10px auto 1rem; /* raised closer to cards */
+  margin: -10px auto 1rem;
   background: linear-gradient(to right, #6a4e23, #3c2a16);
   border-radius: 10px;
   box-shadow: inset 0 5px 8px rgba(0, 0, 0, 0.5), 0 3px 15px rgba(0, 0, 0, 0.6);
@@ -179,7 +177,7 @@ h2 {
   cursor: pointer;
   padding: 4px;
   border-radius: 6px;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
 }
 .menu-btn:hover {
   background: rgba(255, 255, 255, 0.15);
@@ -227,7 +225,7 @@ h2 {
 
 /* --- Edit Modal --- */
 .edit-modal {
-  display: none; /* hidden by default */
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
@@ -247,10 +245,21 @@ h2 {
   width: 350px;
   color: white;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-  animation: modalFadeIn 0.3s ease;
+  animation: popIn 0.25s ease-out;
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.96);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .modal-content h3 {
@@ -295,26 +304,21 @@ h2 {
   padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
-  transition: transform 0.12s ease-in-out, box-shadow 0.2s ease-in-out,
-    opacity 0.2s ease-in-out;
-  box-shadow: 0 8px 20px rgba(124, 92, 255, 0.35);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(124, 92, 255, 0.3);
   font-weight: 600;
 }
 
 .modal-buttons button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(124, 92, 255, 0.45);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(124, 92, 255, 0.5);
 }
 
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+button:active,
+.menu-btn:active,
+.save-btn:active {
+  transform: scale(0.97);
+  opacity: 0.9;
 }
 
 /* --- Header Layout --- */
@@ -335,7 +339,7 @@ h2 {
   height: 50px;
   border-radius: 50%;
   margin-right: 15px;
-  transition: transform 0.25s ease-out, box-shadow 0.4s ease-in;
+  transition: transform 0.3s ease, box-shadow 0.4s ease;
 }
 
 .profile-section img:hover {
@@ -361,7 +365,7 @@ h2 {
 .side-menu {
   position: fixed;
   top: 0;
-  right: -220px; /* hidden by default */
+  right: -220px;
   height: 100%;
   width: 220px;
   background: rgba(20, 10, 50, 0.95);
@@ -380,7 +384,6 @@ h2 {
   margin: 25px 0;
 }
 
-/* --- Underline Animation for Menu Links --- */
 .side-menu ul li a {
   position: relative;
   display: inline-block;
@@ -388,7 +391,7 @@ h2 {
   text-decoration: none;
   font-size: 1.5rem;
   padding-bottom: 4px;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .side-menu ul li a::after {
@@ -408,13 +411,15 @@ h2 {
 }
 
 .side-menu ul li a:hover::after {
-  width: 60%; /* how wide the underline grows */
-  left: 50%; /* stays centered */
+  width: 60%;
+  left: 50%;
 }
 
 .side-menu.open {
   right: 0;
 }
+
+/* --- Settings Page --- */
 .settings-page {
   max-width: 600px;
   margin: 50px auto;
@@ -423,6 +428,13 @@ h2 {
   border-radius: 12px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
   color: #f5eaff;
+  transition: all 0.3s ease;
+}
+
+.settings-page:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 183, 255, 0.15);
+  border-color: rgba(0, 183, 255, 0.25);
 }
 
 .settings-page h2 {
@@ -458,12 +470,11 @@ h2 {
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.12s ease-in-out, box-shadow 0.2s ease-in-out,
-    opacity 0.2s ease-in-out;
-  box-shadow: 0 8px 20px rgba(124, 92, 255, 0.35);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(124, 92, 255, 0.3);
 }
 
 .save-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(124, 92, 255, 0.45);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(124, 92, 255, 0.5);
 }
