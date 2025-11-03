@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Movie Details</title>
+  <link rel="icon" href="images/logo.png" type="image/png" />
    <link rel="stylesheet" href="main.css">
 
   <style>
@@ -348,19 +349,20 @@
   color: #fff;
 }
 
-
-#rate-modal .mdp-btn{
+#rate-modal .mdp-btn {
   background: #7c5bff;
-  box-shadow: none;
   border-radius: 6px;
   padding: 8px 16px;
   font-weight: 600;
+  box-shadow: 0 4px 12px rgba(124, 92, 255, 0.3);
+  transition: all 0.3s ease;
 }
-#rate-modal .mdp-btn:hover{
-  background: #a08bff;
-  
-  box-shadow: none;
+
+#rate-modal .mdp-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(124, 92, 255, 0.5);
 }
+
 
 
 @keyframes modalFadeIn {
@@ -386,7 +388,9 @@
   
 }
 	
-	
+
+
+
   </style>
 </head>
 <body>
