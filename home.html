@@ -18,75 +18,82 @@
                 <input type="text" class="search-bar" placeholder="Search for movies...">
             </div>
             <a href="home.html" class="home-btn">Home Page</a>
-           <a href="user_page.html"> <img src="images/user.png" alt="User Profile" class="user-pic"></a>
+            <a href="user_page.html"><img src="images/user.png" alt="User Profile" class="user-pic"> </a>
         </div>
     </header>
 
     <!-- Main Content -->
     <main>
-        <!-- Trending  -->
+        <!-- Most Popular  -->
         <div class="category-section">
             <div class="category-header">
-                <h2 class="category-title">Trending Now</h2>
+                <h2 class="category-title">Most Popular</h2>
             </div>
             <div class="scroll-container">
                 <button class="scroll-btn scroll-btn-left" onclick="scrollMovies('trending', -1)">‹</button>
+
                 <div class="movies-wrapper" id="trending">
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
+
+                    <a href="movie-details.html?id=avatar" class="movie-card">
+                        <div class="movie-poster"><img src="images/avatar poster.jpeg" alt="Avatar Poster"></div>
                         <div class="movie-info">
-                            <div class="movie-title">Sample Title</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2025</span>
-                                <span>•</span>
-                                <span class="movie-category">Action</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
-                        <div class="movie-info">
-                            <div class="movie-title">Another Movie</div>
+                            <div class="movie-title">Avatar</div>
                             <div class="movie-meta">
                                 <span class="movie-year">2024</span>
                                 <span>•</span>
-                                <span class="movie-category">Drama</span>
+                                <span class="movie-category">Sci-Fi</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
+                    </a>
+
+                    <a href="movie-details.html?id=la-la-land" class="movie-card">
+                        <div class="movie-poster"><img src="images/La La Land Poster.jpg" alt="La La Land Poster"></div>
                         <div class="movie-info">
-                            <div class="movie-title">Third Result</div>
+                            <div class="movie-title">La La Land</div>
                             <div class="movie-meta">
-                                <span class="movie-year">2023</span>
+                                <span class="movie-year">2016</span>
+                                <span>•</span>
+                                <span class="movie-category">Musical</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="movie-details.html?id=interstellar" class="movie-card">
+                        <div class="movie-poster"><img src="images/Interstellar Poster.jpg" alt="Interstellar Poster"></div>
+                        <div class="movie-info">
+                            <div class="movie-title">Interstellar</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2014</span>
+                                <span>•</span>
+                                <span class="movie-category">Sci-Fi</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="movie-details.html?id=parasite" class="movie-card">
+                        <div class="movie-poster"> <img src="images/Parasite Poster.jpg" alt="Parasite Poster"> </div>
+                        <div class="movie-info">
+                            <div class="movie-title">Parasite</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2019</span>
                                 <span>•</span>
                                 <span class="movie-category">Thriller</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
+                    </a>
+
+                    <a href="movie-details.html?id=inception" class="movie-card">
+                        <div class="movie-poster" > <img src="images/Inception Poster.jpg" alt="Inception Poster"></div>
                         <div class="movie-info">
-                            <div class="movie-title">Epic Adventure</div>
+                            <div class="movie-title">Inception</div>
                             <div class="movie-meta">
-                                <span class="movie-year">2024</span>
-                                <span>•</span>
-                                <span class="movie-category">Adventure</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
-                        <div class="movie-info">
-                            <div class="movie-title">Mystery Film</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2025</span>
+                                <span class="movie-year">2010</span>
                                 <span>•</span>
                                 <span class="movie-category">Mystery</span>
                             </div>
                         </div>
-                    </div>
+                    </a>
+
                 </div>
                 <button class="scroll-btn scroll-btn-right" onclick="scrollMovies('trending', 1)">›</button>
             </div>
@@ -99,62 +106,68 @@
             </div>
             <div class="scroll-container">
                 <button class="scroll-btn scroll-btn-left" onclick="scrollMovies('action', -1)">‹</button>
+
                 <div class="movies-wrapper" id="action">
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
+
+                    <a href="movie-details.html?id=superman" class="movie-card">
+                        <div class="movie-poster"> <img src="images/Superman Poster.jpg" alt="Superman Poster"> </div>
                         <div class="movie-info">
-                            <div class="movie-title">Action Hero</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2024</span>
-                                <span>•</span>
-                                <span class="movie-category">Action</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
-                        <div class="movie-info">
-                            <div class="movie-title">Fast Chase</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2023</span>
-                                <span>•</span>
-                                <span class="movie-category">Action</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
-                        <div class="movie-info">
-                            <div class="movie-title">Combat Zone</div>
+                            <div class="movie-title">Superman</div>
                             <div class="movie-meta">
                                 <span class="movie-year">2025</span>
                                 <span>•</span>
                                 <span class="movie-category">Action</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
+                    </a>
+
+                    <a href="movie-details.html?id=kill-bill" class="movie-card">
+                        <div class="movie-poster"> <img src="images/Kill Bill Poster.jpg" alt="Kill Bill Poster"> </div>
                         <div class="movie-info">
-                            <div class="movie-title">Street Fighter</div>
+                            <div class="movie-title">Kill Bill: Vol.1</div>
                             <div class="movie-meta">
-                                <span class="movie-year">2024</span>
+                                <span class="movie-year">2003</span>
                                 <span>•</span>
                                 <span class="movie-category">Action</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
+                    </a>
+
+                    <a href="movie-details.html?id=prisoners" class="movie-card">
+                        <div class="movie-poster"> <img src="images/Prisoners Poster.jpg" alt="Prisoners Poster"> </div>
                         <div class="movie-info">
-                            <div class="movie-title">Last Mission</div>
+                            <div class="movie-title">Prisoners</div>
                             <div class="movie-meta">
-                                <span class="movie-year">2023</span>
+                                <span class="movie-year">2005</span>
                                 <span>•</span>
                                 <span class="movie-category">Action</span>
                             </div>
                         </div>
-                    </div>
+                    </a>
+
+                    <a href="movie-details.html?id=oceans-8" class="movie-card">
+                        <div class="movie-poster"> <img src="images/Ocean's 8 Poster.jpg" alt="Ocean's 8 Poster"> </div>
+                        <div class="movie-info">
+                            <div class="movie-title">Ocean's 8</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2018</span>
+                                <span>•</span>
+                                <span class="movie-category">Action</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="movie-details.html?id=joker" class="movie-card">
+                        <div class="movie-poster"> <img src="images/Joker Poster.jpg" alt="Joker Poster"> </div>
+                        <div class="movie-info">
+                            <div class="movie-title">Joker</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2019</span>
+                                <span>•</span>
+                                <span class="movie-category">Action</span>
+                            </div>
+                        </div>
+                    </a>
                 </div>
                 <button class="scroll-btn scroll-btn-right" onclick="scrollMovies('action', 1)">›</button>
             </div>
@@ -167,62 +180,69 @@
             </div>
             <div class="scroll-container">
                 <button class="scroll-btn scroll-btn-left" onclick="scrollMovies('drama', -1)">‹</button>
+
                 <div class="movies-wrapper" id="drama">
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
+                    
+                    <a href="movie-details.html?id=12-angry-men" class="movie-card">
+                        <div class="movie-poster"> <img src="images/12 Angry Men Poster.jpg" alt="12 Angry Men Poster"> </div>
                         <div class="movie-info">
-                            <div class="movie-title">Life Story</div>
+                            <div class="movie-title">12 Angry Men</div>
                             <div class="movie-meta">
-                                <span class="movie-year">2024</span>
+                                <span class="movie-year">1957</span>
                                 <span>•</span>
                                 <span class="movie-category">Drama</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
+                    </a>
+
+                    <a href="movie-details.html?id=past-lives" class="movie-card">
+                        <div class="movie-poster"> <img src="images/Past Lives Poster.jpg" alt="Past Lives Poster"> </div>
                         <div class="movie-info">
-                            <div class="movie-title">Emotional Journey</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2025</span>
-                                <span>•</span>
-                                <span class="movie-category">Drama</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
-                        <div class="movie-info">
-                            <div class="movie-title">Family Ties</div>
+                            <div class="movie-title">Past Lives</div>
                             <div class="movie-meta">
                                 <span class="movie-year">2023</span>
                                 <span>•</span>
                                 <span class="movie-category">Drama</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
+                    </a>
+
+                    <a href="movie-details.html?id=whiplash" class="movie-card">
+                        <div class="movie-poster"> <img src="images/Whiplash Poster.jpg" alt="Whiplash Poster"> </div>
                         <div class="movie-info">
-                            <div class="movie-title">Heart & Soul</div>
+                            <div class="movie-title">Whiplash</div>
                             <div class="movie-meta">
-                                <span class="movie-year">2024</span>
+                                <span class="movie-year">2014</span>
                                 <span>•</span>
                                 <span class="movie-category">Drama</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="movie-card">
-                        <div class="movie-poster">Poster</div>
+                    </a>
+
+                    <a href="movie-details.html?id=good-will-hunting" class="movie-card">
+                        <div class="movie-poster"> <img src="images/Good Will Hunting Poster.jpg" alt="Good Will Hunting Poster"> </div>
                         <div class="movie-info">
-                            <div class="movie-title">The Struggle</div>
+                            <div class="movie-title">Good Will Hunting</div>
                             <div class="movie-meta">
-                                <span class="movie-year">2025</span>
+                                <span class="movie-year">1997</span>
                                 <span>•</span>
                                 <span class="movie-category">Drama</span>
                             </div>
                         </div>
-                    </div>
+                    </a>
+
+                    <a href="movie-details.html?id=pride-and-prejudice" class="movie-card">
+                        <div class="movie-poster"> <img src="images/Pride And Prejudice Poster.jpg" alt="Pride And Prejudice Poster"> </div>
+                        <div class="movie-info">
+                            <div class="movie-title">Pride And Prejudice</div>
+                            <div class="movie-meta">
+                                <span class="movie-year">2005</span>
+                                <span>•</span>
+                                <span class="movie-category">Drama</span>
+                            </div>
+                        </div>
+                    </a>
+
                 </div>
                 <button class="scroll-btn scroll-btn-right" onclick="scrollMovies('drama', 1)">›</button>
             </div>
@@ -254,5 +274,17 @@
             });
         }
     </script>
+
+    <script>
+        const searchBar = document.querySelector('.search-bar');
+
+        searchBar.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter' && searchBar.value.trim() !== '') {
+                const query = encodeURIComponent(searchBar.value.trim());
+                window.location.href = `search.html?query=${query}`;
+            }
+        });
+    </script>
+
 </body>
 </html>
