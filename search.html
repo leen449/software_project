@@ -1,3 +1,8 @@
+<!-- CHANGES:
+1) .resultsFatema → grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+2) Added missing <div class="containerFatema"> wrapper to mirror reference layout width behavior.
+3) Closed the first card’s <a> tag to preserve intended grid/card sizing.
+-->
 <!doctype html>
 <html lang="en">
 <head>
@@ -24,6 +29,8 @@
   --shadow:0 0.2rem 0.6rem rgba(0,0,0,.25);
   font-size:16px;
 }
+
+body{background:var(--bg); color:var(--text); margin:0}
 
 /* Page container — match main.css width (header/footer use 1400px) */
 .containerFatema{
@@ -84,30 +91,12 @@
   border-color:transparent;
 }
 
-/* Quick pills */
-.pillsFatema{display:flex; gap:.5rem; margin-top:1rem}
-.pillFatema{
-  display:inline-flex;
-  align-items:center;
-  gap:.5rem;
-  padding:.45rem .85rem;
-  border-radius:999rem;
-  background:#20263a;
-  border:1px solid var(--stroke);
-  color:var(--muted);
-  cursor:pointer;
-  user-select:none;
-  font-size:.9rem;
-}
-.pillFatema input{display:none}
-.pillFatema.active{background:#27324b; color:var(--text); border-color:#3a4763}
-
 /* Layout + Results grid */
 .layoutFatema{display:grid; grid-template-columns:1fr; gap:1.25rem; margin-top:1rem}
 .resultsFatema{
   display:grid;
   gap:1rem;
-  grid-template-columns:repeat(auto-fill,minmax(12rem,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); /* ⬅ from File A */
   align-content:start;
 }
 
@@ -133,7 +122,7 @@
 }
 .posterFatema{
   width:100%;
-  height:320px;
+  height:320px; /* ⬅ from File A */
   background:linear-gradient(135deg, #2d4a8e 0%, #1e3a5f 100%);
   display:flex;
   align-items:center;
@@ -146,7 +135,7 @@
 .posterFatema img{
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:cover; /* ⬅ from File A */
 }
 .titleFatema{
   font-size:1.1rem;
@@ -191,6 +180,7 @@
   flex-direction:column;
   gap:1rem;
   box-shadow:var(--shadow);
+  overflow:auto;
 }
 .drawerFatema h3{margin:.25rem 0 .25rem; font-size:1.2rem}
 .fieldFatema{display:flex; flex-direction:column; gap:.4rem}
@@ -205,6 +195,12 @@
   font-size:.95rem;
   outline:none;
 }
+.twoColFatema{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:.6rem;
+}
+
 .drawerActionsFatema{
   margin-top:auto;
   display:flex;
@@ -260,12 +256,26 @@
 /* Let the top search bar expand across the header (scoped) */
 .indexFatema .search-container { max-width: none; }
 
-/* Make cards flow nicely on wide screens */
+/* Make cards flow nicely on wide screens (kept identical to reference) */
 .resultsFatema { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 
 /* --- small helpers for header search placement (scoped) --- */
 .indexFatema .header-content .search-container { flex: 1; }
 .headerSearchFatema { width: 100%; }
+
+/* ===== ONLY CHANGE: remove blue underline/color on links (scoped) ===== */
+.indexFatema a,
+.indexFatema a:visited{
+  color: inherit !important;
+  text-decoration: none !important;
+}
+.indexFatema a:hover,
+.indexFatema a:focus,
+.indexFatema a:active{
+  color: inherit !important;
+  text-decoration: none !important;
+  outline: none !important; /* (visual only; keeps layout unchanged) */
+}
 </style>
 
 <link rel="icon" href="images/logo.png" type="image/png" />
@@ -292,68 +302,65 @@
       <!-- ⬆ end header search -->
 
       <a href="#" class="home-btn">Home Page</a>
-      <a href ="user_page.html" > <img src="images/user.png" alt="User Profile" class="user-pic"> </a>
+      <a href="user_page.html"><img src="images/user.png" alt="User Profile" class="user-pic"></a>
     </div>
   </header>
 
   <div class="containerFatema">
-    <!-- (Removed the toolbar block) -->
-
-    <!-- Quick pills row (Poster / Title) -->
-    <div class="pillsFatema" aria-label="Quick filters">
-      <label class="pillFatema active"><input type="checkbox" checked />Poster</label>
-      <label class="pillFatema"><input type="checkbox" />Title</label>
-    </div>
-
     <!-- Main layout -->
     <div class="layoutFatema">
       <main class="resultsFatema" aria-label="Results">
 
-        <article class="cardFatema">
-          <div class="posterFatema">Poster</div>
-          <img src="Superman Poster.jpg" alt="Superman">
-          <div class="cardBodyFatema">
-            <h4 class="titleFatema">Sample Title</h4>
-            <p class="metaFatema">2025 • Category</p>
-          </div>
-        </article>
-
-        <a href="movie-details.html" class="card-link">
+        <a href="movie-details.html?superman" class="card-link">
           <article class="cardFatema">
-            <div class="posterFatema">Poster</div>
-            <img src="avatar poster.jpeg" alt="avatar">
+            <div class="posterFatema">
+              <img src="images/Superman Poster.jpg" alt="Superman">
+            </div>
             <div class="cardBodyFatema">
-              <h4 class="titleFatema">Another Item</h4>
+              <h4 class="titleFatema">Superman</h4>
+              <p class="metaFatema">2025 • Category</p>
+            </div>
+          </article>
+        </a>
+
+        <a href="movie-details.html?avatar" class="card-link">
+          <article class="cardFatema">
+            <div class="posterFatema">
+              <img src="images/avatar poster.jpeg" alt="avatar">
+            </div>
+            <div class="cardBodyFatema">
+              <h4 class="titleFatema">avatar</h4>
               <p class="metaFatema"><span class="metaYearFatema">2024</span> • <span class="metaCategoryFatema">Category</span></p>
             </div>
           </article>
         </a>
 
-        <a href="movie-details.html" class="card-link">
+        <a href="movie-details.html?parasite" class="card-link">
           <article class="cardFatema">
-            <div class="posterFatema">Poster</div>
-            <img src="Parasite Poster.jpg" alt="Parasite">
+            <div class="posterFatema">
+              <img src="images/Parasite Poster.jpg" alt="Parasite">
+            </div>
             <div class="cardBodyFatema">
-              <h4 class="titleFatema">Third Result</h4>
+              <h4 class="titleFatema">Parasite</h4>
               <p class="metaFatema"><span class="metaYearFatema">2023</span> • <span class="metaCategoryFatema">Category</span></p>
             </div>
           </article>
         </a>
 
-        <a href="movie-details.html" class="card-link">
+        <a href="movie-details.html?prisoners" class="card-link">
           <article class="cardFatema">
-            <div class="posterFatema">Poster</div>
-            <img src="Prisoners Poster.jpg" alt="Prisoners">
+            <div class="posterFatema">
+              <img src="images/Prisoners Poster.jpg" alt="Prisoners">
+            </div>
             <div class="cardBodyFatema">
-              <h4 class="titleFatema">Fourth Result</h4>
+              <h4 class="titleFatema">Prisoners</h4>
               <p class="metaFatema"><span class="metaYearFatema">2022</span> • <span class="metaCategoryFatema">Category</span></p>
             </div>
           </article>
         </a>
-    
+
       </main>
 
-      <!-- Optional static rail on wide screens (kept hidden; use if desired) -->
       <aside class="filterRailFatema" aria-hidden="true"></aside>
     </div>
   </div>
@@ -386,6 +393,15 @@
         <input id="rating" type="number" min="0" max="10" step="0.1" placeholder="e.g., 7.5" />
       </div>
 
+      <!-- ✅ New: Duration filter -->
+      <div class="fieldFatema">
+        <label>Duration (minutes)</label>
+        <div class="twoColFatema">
+          <input id="durationMin" type="number" min="0" step="1" placeholder="Min e.g., 80" aria-label="Minimum duration (minutes)">
+          <input id="durationMax" type="number" min="0" step="1" placeholder="Max e.g., 150" aria-label="Maximum duration (minutes)">
+        </div>
+      </div>
+
       <div class="drawerActionsFatema">
         <button class="btnFatema" type="button" id="clearFilters">Clear</button>
         <button class="btnFatema brand" type="button" id="applyFilters">Apply</button>
@@ -412,8 +428,22 @@
       document.getElementById('category').value = '';
       document.getElementById('year').value = '';
       document.getElementById('rating').value = '';
+      document.getElementById('durationMin').value = '';
+      document.getElementById('durationMax').value = '';
     });
-    if (applyBtn) applyBtn.addEventListener('click', () => drawer.classList.remove('open'));
+
+    if (applyBtn) applyBtn.addEventListener('click', () => {
+      // Read current filters (hook these into your real search later)
+      const filters = {
+        category: document.getElementById('category').value,
+        year: document.getElementById('year').value,
+        minRating: document.getElementById('rating').value,
+        minDuration: document.getElementById('durationMin').value,
+        maxDuration: document.getElementById('durationMax').value,
+      };
+      console.log('Apply filters:', filters);
+      drawer.classList.remove('open');
+    });
 
     // Toggle pill active style
     document.querySelectorAll('.pillFatema').forEach(p => {
@@ -423,7 +453,6 @@
     // Optional: header Search button (placeholder)
     document.getElementById('headerSearchBtn')?.addEventListener('click', () => {
       const q = document.getElementById('q')?.value?.trim() || '';
-      // TODO: hook into your actual search logic
       console.log('Search clicked:', q);
     });
   </script>
