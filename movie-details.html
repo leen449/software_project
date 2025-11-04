@@ -563,7 +563,16 @@
     });
   })();
 </script>
+<script>
+        const searchBar = document.querySelector('.search-bar');
 
+        searchBar.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter' && searchBar.value.trim() !== '') {
+                const query = encodeURIComponent(searchBar.value.trim());
+                window.location.href = `search.html?query=${query}`;
+            }
+        });
+    </script>
 
 <!-- Footer -->
         <footer>
