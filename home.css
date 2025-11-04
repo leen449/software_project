@@ -125,6 +125,20 @@
     color: rgba(150, 170, 220, 0.9);
 }
 
+.movie-card {
+    text-decoration: none;
+    color: inherit;
+}
+
+.movie-card:link,
+.movie-card:visited,
+.movie-card:hover,
+.movie-card:active {
+    text-decoration: none;
+    color: inherit;
+}
+
+
 /* Scroll */
 .scroll-btn {
     position: absolute;
