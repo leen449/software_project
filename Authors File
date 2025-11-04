@@ -1,17 +1,38 @@
-Authors 
 
-Here is the list of all individuals who have contributed to the StoryLense project.
 
-Developers:
+📄 AUTHORS
 
--Hussah Alotaibi
+Project Title: StoryLense – Dynamic Movie Rating Platform
+Course: Software Engineering Project (Phase 3)
+Semester: Fall 2025
 
--Aryam Almutairi
+------------------------------------------------------------
+👩‍💻 Developers and Contributions
 
--Leen Binmueqal
+- [Shahad Alotaibi] – Login Page and Signup Page
+  Designed and implemented the authentication interface, ensuring form validation, usability, and consistent styling with the overall theme.
 
--Shahad Alotaibi
+- [Fatema Alhashem] – Index Page and Search Page
+  Created the landing page and movie search functionality, focusing on user navigation, filters, and integration with the database schema.
 
--Fatema Alhashem
+- [Leen Binmueqal] – User Page and Settings Page
+  Developed interactive user-specific features such as editable ratings, pop-up modals, and responsive design. Implemented settings interface allowing customization and profile management options.
 
-All team members worked collaboratively and in sync to deliver a high-quality project.
+- [Hussah Alotaibi] – Home Page
+  Structured the home layout with clear navigation and visual hierarchy. Implemented consistent styling, smooth transitions, and introductory content to guide users through the platform.
+
+- [Aryam Almutairi] – Movie Details Page
+  Designed and implemented detailed movie information layout, including rating display, review sections, and modal animations inspired by modern streaming services.
+
+------------------------------------------------------------
+🗂️ Database Contribution
+
+The database was collaboratively designed and implemented by **all team members**.  
+Together, the team developed the relational schema to store user data, movie details, and ratings while maintaining consistency across all web pages.
+
+------------------------------------------------------------
+🤝 Team Collaboration
+
+All team members worked collaboratively and in sync throughout the design and implementation phases. 
+The group maintained consistent UI/UX standards, naming conventions, and version control practices 
+to deliver a cohesive and visually unified web platform.
