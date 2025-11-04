@@ -389,7 +389,26 @@
 }
 	
 
+/* ========== Responsive fix ========== */
+@media screen and (max-width: 950px) {
+  .mdp-hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 18px;
+  }
 
+  .mdp-poster {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2/3;
+    margin: 0 auto 18px auto;
+  }
+
+  .mdp-info {
+    padding: 18px;
+  }
+}
+	
 
   </style>
 </head>
@@ -592,4 +611,5 @@
 
 </body>
 </html>
+
 
