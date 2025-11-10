@@ -390,6 +390,109 @@ body{background:var(--bg); color:var(--text); margin:0}
   </div>
 </div>
 
-<!-- Drawer + Footer unchanged -->
+
+     <!-- Filter Drawer -->
+  <div class="drawerFatema" id="filterDrawer" role="dialog" aria-modal="true" aria-labelledby="filterTitle">
+    <div class="drawerPanelFatema">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
+        <h3 id="filterTitle">Filters</h3>
+        <button class="btnFatema" type="button" id="closeDrawer" aria-label="Close filters">Close</button>
+      </div>
+
+      <div class="fieldFatema">
+        <label for="category">Category</label>
+        <select id="category">
+          <option value="">Any</option>
+          <option>Action</option>
+          <option>Drama</option>
+          <option>Comedy</option>
+        </select>
+      </div>
+
+      <div class="fieldFatema">
+        <label for="year">Year</label>
+        <input id="year" type="number" placeholder="e.g., 2024" />
+      </div>
+
+      <div class="fieldFatema">
+        <label for="rating">Minimum rating</label>
+        <input id="rating" type="number" min="0" max="10" step="0.1" placeholder="e.g., 7.5" />
+      </div>
+
+        <div class="fieldFatema">
+  <label for="duration">Duration</label>
+  <select id="duration">
+    <option value="">Any</option>
+    <option value="60">&lt; 1 hour</option>
+    <option value="90">&lt; 1 hour 30 min</option>
+    <option value="120">&lt; 2 hours</option>
+    <option value="150">&lt; 2 hours 30 min</option>
+    <option value="180">&lt; 3 hours</option>
+  </select>
+</div>
+
+        
+        
+      <div class="drawerActionsFatema">
+        <button class="btnFatema" type="button" id="clearFilters">Clear</button>
+        <button class="btnFatema brand" type="button" id="applyFilters">Apply</button>
+      </div>
+    </div>
+  </div>
+     
+     
+
+  <script>
+    // Wire up Filter drawer
+    const filterBtn = document.getElementById('filterBtn');
+    const drawer = document.getElementById('filterDrawer');
+    const closeDrawer = document.getElementById('closeDrawer');
+    const clearBtn = document.getElementById('clearFilters');
+    const applyBtn = document.getElementById('applyFilters');
+
+    if (filterBtn) filterBtn.addEventListener('click', () => drawer.classList.add('open'));
+    if (closeDrawer) closeDrawer.addEventListener('click', () => drawer.classList.remove('open'));
+    if (drawer) drawer.addEventListener('click', (e) => {
+      if (e.target === drawer) drawer.classList.remove('open');
+    });
+
+    // Fake actions for demo
+    if (clearBtn) clearBtn.addEventListener('click', () => {
+      document.getElementById('category').value = '';
+      document.getElementById('year').value = '';
+      document.getElementById('rating').value = '';
+    });
+    if (applyBtn) applyBtn.addEventListener('click', () => drawer.classList.remove('open'));
+
+    // Toggle pill active style
+    document.querySelectorAll('.pillFatema').forEach(p => {
+      p.addEventListener('click', () => p.classList.toggle('active'));
+    });
+
+    // Optional: header Search button (placeholder)
+    document.getElementById('headerSearchBtn')?.addEventListener('click', () => {
+      const q = document.getElementById('q')?.value?.trim() || '';
+      // TODO: hook into your actual search logic
+      console.log('Search clicked:', q);
+    });
+  </script>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="vision-title">OUR VISION</div>
+      <div class="vision-text">
+        At StoryLense, we make rating movies simple, engaging, and accessible for everyone
+      </div>
+      <div class="copyright">&copy; StoryLense. All rights reserved.</div>
+      <div class="social-icons">
+        <img src="images/x-logo.png" alt="X" class="social-icon">
+        <img src="images/instagram-logo.png" alt="Instagram" class="social-icon">
+      </div>
+    </div>
+  </footer>
+    
+    
+    
 </body>
 </html>
