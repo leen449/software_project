@@ -328,8 +328,8 @@ body{background:var(--bg); color:var(--text); margin:0}
       </div>
     </div>
 
-    <a href="home.html" class="home-btn">Home Page</a>
-    <a href="user_page.html"><img src="images/user.png" alt="User Profile" class="user-pic"></a>
+    <a href="home.php" class="home-btn">Home Page</a>
+    <a href="user_page.php"><img src="images/user.png" alt="User Profile" class="user-pic"></a>
   </div>
 </header>
 
@@ -337,7 +337,7 @@ body{background:var(--bg); color:var(--text); margin:0}
   <div class="layoutFatema">
     <main class="resultsFatema" aria-label="Results">
 
-      <a href="movie-details.html?superman" class="card-link">
+      <a href="movie-details.php?superman" class="card-link">
         <article class="cardFatema">
           <div class="posterFatema">
             <img src="images/Superman Poster.jpg" alt="Superman">
@@ -349,7 +349,7 @@ body{background:var(--bg); color:var(--text); margin:0}
         </article>
       </a>
 
-      <a href="movie-details.html?avatar" class="card-link">
+      <a href="movie-details.php?avatar" class="card-link">
         <article class="cardFatema">
           <div class="posterFatema">
             <img src="images/avatar poster.jpeg" alt="avatar">
@@ -361,7 +361,7 @@ body{background:var(--bg); color:var(--text); margin:0}
         </article>
       </a>
 
-      <a href="movie-details.html?parasite" class="card-link">
+      <a href="movie-details.php?parasite" class="card-link">
         <article class="cardFatema">
           <div class="posterFatema">
             <img src="images/Parasite Poster.jpg" alt="Parasite">
@@ -373,7 +373,7 @@ body{background:var(--bg); color:var(--text); margin:0}
         </article>
       </a>
 
-      <a href="movie-details.html?prisoners" class="card-link">
+      <a href="movie-details.php?prisoners" class="card-link">
         <article class="cardFatema">
           <div class="posterFatema">
             <img src="images/Prisoners Poster.jpg" alt="Prisoners">
@@ -495,4 +495,4 @@ body{background:var(--bg); color:var(--text); margin:0}
     
     
 </body>
-</html>
+  </html>

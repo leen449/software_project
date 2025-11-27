@@ -25,12 +25,12 @@
       <form class="login-form" action="login_process.php" method="POST">
         <input type="email" name="email" placeholder="Email Address" required>
         <input type="password" name="password" placeholder="Password" required>
- <a href="home.html">
+ <a href="home.php">
           <button type="button">Login</button>
         </a>      </form>
 
       <div class="signup-link">
-        Don't have an account? <a href="sign.html">Sign up</a>
+        Don't have an account? <a href="sign.php">Sign up</a>
       </div>
     </div>
   </main>

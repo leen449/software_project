@@ -12,7 +12,7 @@
     <div class="fadeInUp-animation">
       <div class="top-header">
         <div class="profile-section">
-          <a href="user_page.html"><img src="images/profile.jpg" alt="Profile" /></a>
+          <a href="user_page.php"><img src="images/profile.jpg" alt="Profile" /></a>
           <h1>Settings</h1>
         </div>
         <button class="hamburger" id="hamburger">☰</button>
@@ -21,8 +21,8 @@
       <!-- Same side menu for consistency -->
       <nav class="side-menu" id="sideMenu">
         <ul>
-          <li><a href="user_page.html">🏠 My Shelf</a></li>
-          <li><a href="index.html">🚪 Logout</a></li>
+          <li><a href="user_page.php">🏠 My Shelf</a></li>
+          <li><a href="index.php">🚪 Logout</a></li>
         </ul>
       </nav>
 
@@ -65,7 +65,7 @@
             let password = document.querySelector(".password").value;
             if(username!="" && password!=""){
                 alert("Changes saved successfully!");
-                window.location.href = "user_page.html";
+                window.location.href = "user_page.php";
             }else{
                 alert("Please fill in all fields.");
             }
@@ -84,4 +84,4 @@
     </script>
     
   </body>
-</html>
+    </html>

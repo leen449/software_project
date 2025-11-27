@@ -16,7 +16,7 @@
                 <div class="search-container">
                     <input type="text" class="search-bar" placeholder="Search for movies...">
                 </div>
-                <a href="home.html" class="home-btn">Home Page</a>
+                <a href="home.php" class="home-btn">Home Page</a>
             </div>
         </header>
 
@@ -25,7 +25,7 @@
     <div class="fadeInUp-animation">
       <div class="top-header">
         <div class="profile-section">
-          <a href="user_page.html"><img src="images/profile.jpg" alt="Profile" /></a>
+          <a href="user_page.php"><img src="images/profile.jpg" alt="Profile" /></a>
           <h1>welcome lamya</h1>
         </div>
         <button class="hamburger" id="hamburger">☰</button>
@@ -34,8 +34,8 @@
       <!-- Hamburger Side Menu -->
       <nav class="side-menu" id="sideMenu">
         <ul>
-          <li><a href="settings.html">⚙️Profile</a></li>
-          <li><a href="index.html">🚪Logout</a></li>
+          <li><a href="settings.php">⚙️Profile</a></li>
+          <li><a href="index.php">🚪Logout</a></li>
         </ul>
       </nav>
     </div>
@@ -281,9 +281,9 @@
         searchBar.addEventListener('keypress', function (event) {
             if (event.key === 'Enter' && searchBar.value.trim() !== '') {
                 const query = encodeURIComponent(searchBar.value.trim());
-                window.location.href = `search.html?query=${query}`;
+                window.location.href = `search.php?query=${query}`;
             }
         });
     </script>
   </body>
-</html>
+      </html>

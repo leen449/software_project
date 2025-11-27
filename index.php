@@ -128,8 +128,8 @@
           </p>
 
           <div class="actionsFatema">
-            <a class="btnFatema primary" href="sign.html">Sign up</a>
-            <a class="btnFatema" href="log.html">Log in</a>
+            <a class="btnFatema primary" href="sign.php">Sign up</a>
+            <a class="btnFatema" href="log.php">Log in</a>
           </div>
         </div>
 

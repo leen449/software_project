@@ -17,8 +17,8 @@
             <div class="search-container">
                 <input type="text" class="search-bar" placeholder="Search for movies...">
             </div>
-            <a href="home.html" class="home-btn">Home Page</a>
-            <a href="user_page.html"><img src="images/user.png" alt="User Profile" class="user-pic"> </a>
+            <a href="home.php" class="home-btn">Home Page</a>
+            <a href="user_page.php"><img src="images/user.png" alt="User Profile" class="user-pic"> </a>
         </div>
     </header>
 
@@ -42,7 +42,7 @@
 
                 <div class="movies-wrapper" id="trending">
 
-                    <a href="movie-details.html?id=avatar" class="movie-card">
+                    <a href="movie-details.php?id=avatar" class="movie-card">
                         <div class="movie-poster"><img src="images/avatar poster.jpeg" alt="Avatar Poster"></div>
                         <div class="movie-info">
                             <div class="movie-title">Avatar</div>
@@ -54,7 +54,7 @@
                         </div>
                     </a>
 
-                    <a href="movie-details.html?id=la-la-land" class="movie-card">
+                    <a href="movie-details.php?id=la-la-land" class="movie-card">
                         <div class="movie-poster"><img src="images/La La Land Poster.jpg" alt="La La Land Poster"></div>
                         <div class="movie-info">
                             <div class="movie-title">La La Land</div>
@@ -66,7 +66,7 @@
                         </div>
                     </a>
 
-                    <a href="movie-details.html?id=interstellar" class="movie-card">
+                    <a href="movie-details.php?id=interstellar" class="movie-card">
                         <div class="movie-poster"><img src="images/Interstellar Poster.jpg" alt="Interstellar Poster"></div>
                         <div class="movie-info">
                             <div class="movie-title">Interstellar</div>
@@ -78,7 +78,7 @@
                         </div>
                     </a>
 
-                    <a href="movie-details.html?id=parasite" class="movie-card">
+                    <a href="movie-details.php?id=parasite" class="movie-card">
                         <div class="movie-poster"> <img src="images/Parasite Poster.jpg" alt="Parasite Poster"> </div>
                         <div class="movie-info">
                             <div class="movie-title">Parasite</div>
@@ -90,7 +90,7 @@
                         </div>
                     </a>
 
-                    <a href="movie-details.html?id=inception" class="movie-card">
+                    <a href="movie-details.php?id=inception" class="movie-card">
                         <div class="movie-poster" > <img src="images/Inception Poster.jpg" alt="Inception Poster"></div>
                         <div class="movie-info">
                             <div class="movie-title">Inception</div>
@@ -117,7 +117,7 @@
 
                 <div class="movies-wrapper" id="action">
 
-                    <a href="movie-details.html?id=superman" class="movie-card">
+                    <a href="movie-details.php?id=superman" class="movie-card">
                         <div class="movie-poster"> <img src="images/Superman Poster.jpg" alt="Superman Poster"> </div>
                         <div class="movie-info">
                             <div class="movie-title">Superman</div>
@@ -129,7 +129,7 @@
                         </div>
                     </a>
 
-                    <a href="movie-details.html?id=kill-bill" class="movie-card">
+                    <a href="movie-details.php?id=kill-bill" class="movie-card">
                         <div class="movie-poster"> <img src="images/Kill Bill Poster.jpg" alt="Kill Bill Poster"> </div>
                         <div class="movie-info">
                             <div class="movie-title">Kill Bill: Vol.1</div>
@@ -141,7 +141,7 @@
                         </div>
                     </a>
 
-                    <a href="movie-details.html?id=prisoners" class="movie-card">
+                    <a href="movie-details.php?id=prisoners" class="movie-card">
                         <div class="movie-poster"> <img src="images/Prisoners Poster.jpg" alt="Prisoners Poster"> </div>
                         <div class="movie-info">
                             <div class="movie-title">Prisoners</div>
@@ -153,7 +153,7 @@
                         </div>
                     </a>
 
-                    <a href="movie-details.html?id=oceans-8" class="movie-card">
+                    <a href="movie-details.php?id=oceans-8" class="movie-card">
                         <div class="movie-poster"> <img src="images/Ocean's 8 Poster.jpg" alt="Ocean's 8 Poster"> </div>
                         <div class="movie-info">
                             <div class="movie-title">Ocean's 8</div>
@@ -165,7 +165,7 @@
                         </div>
                     </a>
 
-                    <a href="movie-details.html?id=joker" class="movie-card">
+                    <a href="movie-details.php?id=joker" class="movie-card">
                         <div class="movie-poster"> <img src="images/Joker Poster.jpg" alt="Joker Poster"> </div>
                         <div class="movie-info">
                             <div class="movie-title">Joker</div>
@@ -191,7 +191,7 @@
 
                 <div class="movies-wrapper" id="drama">
                     
-                    <a href="movie-details.html?id=12-angry-men" class="movie-card">
+                    <a href="movie-details.php?id=12-angry-men" class="movie-card">
                         <div class="movie-poster"> <img src="images/12 Angry Men Poster.jpg" alt="12 Angry Men Poster"> </div>
                         <div class="movie-info">
                             <div class="movie-title">12 Angry Men</div>
@@ -203,7 +203,7 @@
                         </div>
                     </a>
 
-                    <a href="movie-details.html?id=past-lives" class="movie-card">
+                    <a href="movie-details.php?id=past-lives" class="movie-card">
                         <div class="movie-poster"> <img src="images/Past Lives Poster.jpg" alt="Past Lives Poster"> </div>
                         <div class="movie-info">
                             <div class="movie-title">Past Lives</div>
@@ -215,7 +215,7 @@
                         </div>
                     </a>
 
-                    <a href="movie-details.html?id=whiplash" class="movie-card">
+                    <a href="movie-details.php?id=whiplash" class="movie-card">
                         <div class="movie-poster"> <img src="images/Whiplash Poster.jpg" alt="Whiplash Poster"> </div>
                         <div class="movie-info">
                             <div class="movie-title">Whiplash</div>
@@ -227,7 +227,7 @@
                         </div>
                     </a>
 
-                    <a href="movie-details.html?id=good-will-hunting" class="movie-card">
+                    <a href="movie-details.php?id=good-will-hunting" class="movie-card">
                         <div class="movie-poster"> <img src="images/Good Will Hunting Poster.jpg" alt="Good Will Hunting Poster"> </div>
                         <div class="movie-info">
                             <div class="movie-title">Good Will Hunting</div>
@@ -239,7 +239,7 @@
                         </div>
                     </a>
 
-                    <a href="movie-details.html?id=pride-and-prejudice" class="movie-card">
+                    <a href="movie-details.php?id=pride-and-prejudice" class="movie-card">
                         <div class="movie-poster"> <img src="images/Pride And Prejudice Poster.jpg" alt="Pride And Prejudice Poster"> </div>
                         <div class="movie-info">
                             <div class="movie-title">Pride And Prejudice</div>
@@ -289,7 +289,7 @@
         searchBar.addEventListener('keypress', function (event) {
             if (event.key === 'Enter' && searchBar.value.trim() !== '') {
                 const query = encodeURIComponent(searchBar.value.trim());
-                window.location.href = `search.html?query=${query}`;
+                window.location.href = `search.php?query=${query}`;
             }
         });
     </script>

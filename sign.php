@@ -42,13 +42,13 @@
             placeholder="Password"
             required
           />
-          <a href="home.html">
+          <a href="home.php">
             <button type="button">Sign Up</button>
           </a>
         </form>
 
         <div class="login-link">
-          Already have an account? <a href="log.html">Login</a>
+          Already have an account? <a href="log.php">Login</a>
         </div>
       </div>
     </main>
