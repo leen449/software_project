@@ -234,4 +234,26 @@ filter: brightness(1.1);
         width: 35px;
     }
 }
-/* Responsive design - END */
+.pic-options {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.option {
+    width: 6.3em;
+    height:6.3em;
+    border-radius: 50%;
+    cursor: pointer;
+    object-fit: cover;
+    border: 2px solid transparent;
+    transition: 0.2s;
+}
+
+.option:hover {
+    border-color: #4a90e2;
+}
+.option.selected {
+    border-color: #4a90e2;
+}
