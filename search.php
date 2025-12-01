@@ -85,11 +85,13 @@ if ($q !== '') {
       )
     ";
 
-    // 🔹 Only keep movies whose title matches OR share that main genre
+  
+       // 🔹 Keep movies whose title matches OR whose genre matches the search text
     $sql .= "
       AND (
         title LIKE '{$containsEsc}'
-        OR genre = {$genreSub}
+        OR genre LIKE '{$containsEsc}'   -- allow searching by genre name (Action, Drama, etc.)
+        OR genre = {$genreSub}           -- keep your old 'similar genre' logic
       )
       ORDER BY
         CASE
@@ -99,14 +101,24 @@ if ($q !== '') {
           WHEN title LIKE '{$startsEsc}' THEN 1
           -- 3) titles that contain the search text
           WHEN title LIKE '{$containsEsc}' THEN 2
-          -- 4) same-genre movies
-          WHEN genre = {$genreSub} THEN 3
-          -- (no group 4: we filtered others out)
-          ELSE 4
+          -- 4) exact genre name (e.g. 'Action')
+          WHEN genre = '{$exactEsc}' THEN 3
+          -- 5) genre contains the search text
+          WHEN genre LIKE '{$containsEsc}' THEN 4
+          -- 6) same-genre movies from the subquery
+          WHEN genre = {$genreSub} THEN 5
+          ELSE 6
         END,
         releaseDate DESC,
         title ASC
     ";
+ 
+    
+    
+    
+    
+    
+    
 } else {
     // no search text → normal ordering, all movies
     $sql .= " ORDER BY releaseDate DESC, title ASC";
@@ -647,7 +659,7 @@ if (drawer) {
 if (clearBtn) {
   clearBtn.addEventListener('click', () => {
     document.getElementById('category').value = '';
-    document.getElementById('year').value = '';
+   // document.getElementById('year').value = '';
   //  document.getElementById('rating').value = '';
     document.getElementById('duration').value = '';
   });
