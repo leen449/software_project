@@ -1,3 +1,136 @@
+<?php
+session_start();
+
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+require_once 'connect.php'; // $conn (mysqli)
+
+$isLoggedIn = isset($_SESSION['user_id']);
+
+/*
+  From SQL:
+
+  movie(
+    movieID, title, genre, duration, description, posterURL, releaseDate
+  )
+*/
+
+// -------- read filters from GET ----------
+$q          = isset($_GET['q']) ? trim($_GET['q']) : '';
+$category   = isset($_GET['category']) ? trim($_GET['category']) : '';
+$year       = isset($_GET['year']) ? trim($_GET['year']) : '';
+//$minRating  = isset($_GET['rating']) ? trim($_GET['rating']) : '';   // not used yet
+$maxMinutes = isset($_GET['duration']) ? trim($_GET['duration']) : '';
+
+// escape strings for safety
+$qEsc        = mysqli_real_escape_string($conn, $q);
+$categoryEsc = mysqli_real_escape_string($conn, $category);
+
+
+
+// -------- build base SQL (filters only, no title condition yet) ----------
+$sql = "
+  SELECT
+    movieID,
+    title,
+    genre,
+    duration,
+    description,
+    posterURL,
+    releaseDate
+  FROM movie
+  WHERE 1 = 1
+";
+
+// category → genre
+if ($category !== '') {
+    $sql .= " AND genre = '{$categoryEsc}'";
+}
+
+// year → from releaseDate
+if ($year !== '') {
+    $yearInt = (int)$year;
+    $sql .= " AND YEAR(releaseDate) = {$yearInt}";
+}
+
+// duration filter (minutes)
+if ($maxMinutes !== '') {
+    $durInt = (int)$maxMinutes;
+    $sql .= " AND duration <= {$durInt}";
+}
+
+// -------- ranking logic ----------
+
+
+if ($q !== '') {
+    $exactEsc    = mysqli_real_escape_string($conn, $q);
+    $startsEsc   = mysqli_real_escape_string($conn, $q . '%');
+    $containsEsc = mysqli_real_escape_string($conn, '%' . $q . '%');
+
+    // subquery to get the "main" movie's genre (best title match)
+    $genreSub = "
+      (
+        SELECT genre
+        FROM movie
+        WHERE title LIKE '{$containsEsc}'
+        ORDER BY
+          CASE
+            WHEN title = '{$exactEsc}' THEN 0
+            WHEN title LIKE '{$startsEsc}' THEN 1
+            ELSE 2
+          END
+        LIMIT 1
+      )
+    ";
+
+    // 🔹 Only keep movies whose title matches OR share that main genre
+    $sql .= "
+      AND (
+        title LIKE '{$containsEsc}'
+        OR genre = {$genreSub}
+      )
+      ORDER BY
+        CASE
+          -- 1) exact title
+          WHEN title = '{$exactEsc}' THEN 0
+          -- 2) titles that start with the search text
+          WHEN title LIKE '{$startsEsc}' THEN 1
+          -- 3) titles that contain the search text
+          WHEN title LIKE '{$containsEsc}' THEN 2
+          -- 4) same-genre movies
+          WHEN genre = {$genreSub} THEN 3
+          -- (no group 4: we filtered others out)
+          ELSE 4
+        END,
+        releaseDate DESC,
+        title ASC
+    ";
+} else {
+    // no search text → normal ordering, all movies
+    $sql .= " ORDER BY releaseDate DESC, title ASC";
+}
+
+
+
+$sql .= " LIMIT 100";
+
+
+
+
+
+// -------- run query ----------
+$result = $conn->query($sql);
+if (!$result) {
+    die('Query error: ' . $conn->error);
+}
+
+$movies = [];
+while ($row = $result->fetch_assoc()) {
+    $movies[] = $row;
+}
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -84,12 +217,44 @@ body{background:var(--bg); color:var(--text); margin:0}
 }
 
 .layoutFatema{display:grid; grid-template-columns:1fr; gap:1.25rem; margin-top:1rem}
+
+
 .resultsFatema{
   display:grid;
   gap:1rem;
-  grid-template-columns:repeat(auto-fill,minmax(16.25rem,1fr));
+  /* desktop: 4 cards per row */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-content:start;
 }
+
+/* laptop */
+@media (max-width: 1200px){
+  .resultsFatema{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* tablet */
+@media (max-width: 900px){
+  .resultsFatema{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* phone */
+@media (max-width: 600px){
+  .resultsFatema{
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+
+
+
+
+
 
 .cardFatema{
   flex:0 0 17.5rem;
@@ -148,29 +313,46 @@ body{background:var(--bg); color:var(--text); margin:0}
 .metaCategoryFatema{color:rgba(150,170,220,0.9)}
 
 .filterRailFatema{display:none}
+
+
 .drawerFatema{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.45);
+  /* dark overlay behind the panel */
+  background:rgba(0,0,0,0.55);        /* 55% opacity */
   display:none;
-  z-index:40;
-  padding:1.25rem;
+  z-index:9999;                        /* <<< higher than header */
+  padding:0;                           /* no extra offset */
 }
+
 .drawerFatema.open{display:block}
+
 .drawerPanelFatema{
   margin-left:auto;
   width:min(24rem,90vw);
   height:100%;
-  background:var(--panel);
+  /* panel itself slightly transparent */
+  background:rgba(21,24,32,0.9);       /* ~90% opaque – change 0.9 to 0.8 if you want */
+  backdrop-filter:blur(6px);           /* optional, but looks nice */
   border-left:0.0625rem solid var(--stroke);
   border-radius:1rem 0 0 1rem;
-  padding:1rem;
+  padding:1.25rem;
   display:flex;
   flex-direction:column;
   gap:1rem;
   box-shadow:var(--shadow);
   overflow:auto;
 }
+
+
+
+
+
+
+
+
+
+
 .drawerFatema h3{margin:.25rem 0 .25rem; font-size:1.2rem}
 .fieldFatema{display:flex; flex-direction:column; gap:.4rem}
 .fieldFatema label{font-size:.9rem; color:var(--muted)}
@@ -190,12 +372,13 @@ body{background:var(--bg); color:var(--text); margin:0}
   gap:.6rem;
 }
 
-.drawerActionsFatema{
-  margin-top:auto;
-  display:flex;
-  gap:.6rem;
-  justify-content:flex-end;
+.drawerActionsFatema {
+    margin-top: 1.5rem;      
+    display: flex;
+    gap: 1rem;               
+    justify-content: flex-end;
 }
+
 
 .srOnlyFatema{
   position:absolute;
@@ -209,103 +392,107 @@ body{background:var(--bg); color:var(--text); margin:0}
   border:0;
 }
 
-/* ===================== Responsive ===================== */
-@media (max-width:64rem){
-  .searchFatema{gap:.5rem;}
+
+
+/* ===== Netflix-style tighter grid overrides ===== */
+
+/* use more cards per row on big screens */
+.resultsFatema{
+  display:grid;
+  gap:0.75rem;                          /* smaller gaps */
+  grid-template-columns: repeat(6, minmax(0, 1fr));  /* 6 per row on desktop */
+  align-content:start;
+  margin-top:0.75rem;                   /* less space below header */
 }
 
-@media (max-width:51.25rem){
-  .indexFatema .header-content .search-container{
-    flex:1;
-    min-width:17.5rem;
+/* laptop */
+@media (max-width: 1200px){
+  .resultsFatema{
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
-@media (max-width:45rem){
-  .searchFatema{
-    display:grid;
-    grid-template-columns:1.25rem 1fr auto;
-    grid-auto-rows:auto;
-    align-items:center;
-    gap:.5rem .75rem;
-    padding:.65rem .875rem;
-  }
-  .searchFatema svg{grid-column:1;}
-  .searchFatema input{grid-column:2;}
-  #headerSearchBtn{grid-column:3;}
-  #filterBtn{grid-column:3;}
-}
-
-@media (max-width:35rem){
-  .searchFatema{
-    grid-template-columns:1.25rem 1fr;
-  }
-  #headerSearchBtn,
-  #filterBtn{
-    grid-column:1 / -1;
-    width:100%;
-  }
-
-  .drawerPanelFatema{
-    width:min(26rem,96vw);
-    padding:.875rem;
-  }
-
-  .indexFatema .header-content,
-  .indexFatema .footer-content,
-  .containerFatema{
-    padding-left:1rem;
-    padding-right:1rem;
+/* tablet */
+@media (max-width: 900px){
+  .resultsFatema{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (max-width:40rem){
-  .toolbarFatema{top:4rem}
-}
-@media (max-width:48rem){
-  .cardFatema{flex:0 0 13.75rem}
-  .posterFatema{height:13.75rem}
-}
-@media (max-width:30rem){
-  .cardFatema{flex:0 0 11.25rem}
-  .posterFatema{height:16.25rem}
-  .cardBodyFatema{padding:1rem}
-  .titleFatema{font-size:1rem}
-  .metaFatema{font-size:.85rem}
+/* phone */
+@media (max-width: 600px){
+  .resultsFatema{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-.indexFatema .header-content,
-.indexFatema .footer-content{
-  max-width:none;
-  width:100%;
-  padding-left:2rem;
-  padding-right:2rem;
-}
 
 .containerFatema{
   max-width:none;
   width:100%;
-  padding-left:2rem;
-  padding-right:2rem;
+  padding-left:1rem;
+  padding-right:1rem;
+  padding-top:0.5rem;
+  padding-bottom:2rem;
 }
 
-.indexFatema .search-container{max-width:none;}
-.resultsFatema{grid-template-columns:repeat(auto-fill,minmax(16.25rem,1fr));}
-.indexFatema .header-content .search-container{flex:1;}
-.headerSearchFatema{width:100%;}
 
-.indexFatema a,
-.indexFatema a:visited{
-  color:inherit !important;
-  text-decoration:none !important;
+/* Remove link underline + default blue color inside movie cards */
+.resultsFatema a {
+    text-decoration: none !important;  /* remove underline */
+    color: inherit !important;         /* keep same color as parent */
 }
-.indexFatema a:hover,
-.indexFatema a:focus,
-.indexFatema a:active{
-  color:inherit !important;
-  text-decoration:none !important;
-  outline:none !important;
+
+.resultsFatema a:hover {
+    text-decoration: none !important;  /* no underline on hover */
 }
+
+
+
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;  /* pushes items to opposite sides */
+    width: 100%;
+}
+
+.user-pic {
+    margin-left: auto;   /* pushes icon fully to the right */
+    display: block;
+}
+
+
+
+.header-content {
+    display: flex;
+    align-items: center;
+    /* no justify-content here → layout stays as before */
+}
+
+
+
+.search-container {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start; /* put the search beside the logo */
+    margin-right: 45rem;           /* small space between logo and search bar */
+}
+
+
+
+
+/* push the right-side links to the far right */
+.home-btn {
+    margin-left: auto;           /* moves Dashboard / Home Page to the right */
+}
+
+.user-pic {
+    margin-left: 0.75rem;        /* small space between button and icon */
+    display: block;
+}
+
+
 </style>
 
 <link rel="icon" href="images/logo.png" type="image/png" />
@@ -318,181 +505,168 @@ body{background:var(--bg); color:var(--text); margin:0}
     <img src="images/logo.jpg" alt="StoryLense Logo" class="logo">
 
     <div class="search-container">
-      <div class="searchFatema headerSearchFatema" role="search" aria-label="Search">
+      <!-- form so Search submits with GET -->
+      <form class="searchFatema headerSearchFatema"
+            role="search"
+            aria-label="Search"
+            method="get"
+            action="search.php">
         <svg aria-hidden="true" width="1.25rem" height="1.25rem" viewBox="0 0 24 24" fill="none">
           <path d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z" stroke="#8ea3c7" stroke-width="2" stroke-linecap="round"/>
         </svg>
-        <input id="q" type="search" placeholder="Search…" aria-label="Search input" />
-        <button id="headerSearchBtn" class="btnFatema brand" type="button">Search</button>
-        <button id="filterBtn" class="btnFatema" type="button" aria-haspopup="dialog" aria-controls="filterDrawer">Filter</button>
-      </div>
+        <input id="q" name="q" type="search" placeholder="Search…" aria-label="Search input"
+               value="<?php echo htmlspecialchars($q); ?>" />
+        <button id="headerSearchBtn" class="btnFatema brand" type="submit">Search</button>
+        <button id="filterBtn" class="btnFatema" type="button">Filter</button>
+      </form>
     </div>
 
-    <a href="home.php" class="home-btn">Home Page</a>
-    <a href="user_page.php"><img src="images/user.png" alt="User Profile" class="user-pic"></a>
+    <?php if($isLoggedIn): ?>
+  
+        <a href="logout.php"><img src="images/user.png" alt="User" class="user-pic"></a>
+    <?php else: ?>
+        <a href="index.php" class="home-btn">Home Page</a>
+        <a href="log.php"><img src="images/user.png" alt="User" class="user-pic"></a>
+    <?php endif; ?>
+
   </div>
 </header>
 
 <div class="containerFatema">
   <div class="layoutFatema">
     <main class="resultsFatema" aria-label="Results">
-
-      <a href="movie-details.php?superman" class="card-link">
-        <article class="cardFatema">
-          <div class="posterFatema">
-            <img src="images/Superman Poster.jpg" alt="Superman">
-          </div>
-          <div class="cardBodyFatema">
-            <h4 class="titleFatema">Superman</h4>
-            <p class="metaFatema">2025 • Category</p>
-          </div>
-        </article>
-      </a>
-
-      <a href="movie-details.php?avatar" class="card-link">
-        <article class="cardFatema">
-          <div class="posterFatema">
-            <img src="images/avatar poster.jpeg" alt="avatar">
-          </div>
-          <div class="cardBodyFatema">
-            <h4 class="titleFatema">avatar</h4>
-            <p class="metaFatema"><span class="metaYearFatema">2024</span> • <span class="metaCategoryFatema">Category</span></p>
-          </div>
-        </article>
-      </a>
-
-      <a href="movie-details.php?parasite" class="card-link">
-        <article class="cardFatema">
-          <div class="posterFatema">
-            <img src="images/Parasite Poster.jpg" alt="Parasite">
-          </div>
-          <div class="cardBodyFatema">
-            <h4 class="titleFatema">Parasite</h4>
-            <p class="metaFatema"><span class="metaYearFatema">2023</span> • <span class="metaCategoryFatema">Category</span></p>
-          </div>
-        </article>
-      </a>
-
-      <a href="movie-details.php?prisoners" class="card-link">
-        <article class="cardFatema">
-          <div class="posterFatema">
-            <img src="images/Prisoners Poster.jpg" alt="Prisoners">
-          </div>
-          <div class="cardBodyFatema">
-            <h4 class="titleFatema">Prisoners</h4>
-            <p class="metaFatema"><span class="metaYearFatema">2022</span> • <span class="metaCategoryFatema">Category</span></p>
-          </div>
-        </article>
-      </a>
-
+      <?php if (empty($movies)): ?>
+        <p style="color:var(--muted);">No movies found.</p>
+      <?php else: ?>
+        <?php foreach ($movies as $m): ?>
+          <?php
+            $poster   = $m['posterURL'] ?: 'images/logo.jpg';
+            $yearText = $m['releaseDate'] ? date('Y', strtotime($m['releaseDate'])) : '';
+          ?>
+          <!-- dynamic card: clicking goes to movie-details.php with the movieID -->
+          <a href="movie-details.php?id=<?php echo urlencode($m['movieID']); ?>" class="card-link">
+            <article class="cardFatema">
+              <div class="posterFatema">
+                <img src="<?php echo htmlspecialchars($poster); ?>"
+                     alt="<?php echo htmlspecialchars($m['title']); ?>">
+              </div>
+              <div class="cardBodyFatema">
+                <h4 class="titleFatema"><?php echo htmlspecialchars($m['title']); ?></h4>
+                <p class="metaFatema">
+                  <span class="metaYearFatema"><?php echo htmlspecialchars($yearText); ?></span>
+                  •
+                  <span class="metaCategoryFatema"><?php echo htmlspecialchars($m['genre']); ?></span>
+                </p>
+              </div>
+            </article>
+          </a>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </main>
-    <aside class="filterRailFatema" aria-hidden="true"></aside>
   </div>
 </div>
 
+<!-- Filter Drawer -->
+<div class="drawerFatema" id="filterDrawer">
+  <div class="drawerPanelFatema">
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+      <h3>Filters</h3>
+      <button class="btnFatema" id="closeDrawer" type="button">Close</button>
+    </div>
 
-     <!-- Filter Drawer -->
-  <div class="drawerFatema" id="filterDrawer" role="dialog" aria-modal="true" aria-labelledby="filterTitle">
-    <div class="drawerPanelFatema">
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
-        <h3 id="filterTitle">Filters</h3>
-        <button class="btnFatema" type="button" id="closeDrawer" aria-label="Close filters">Close</button>
-      </div>
+    <!-- Filters submit with GET to same page -->
+    <form id="filterForm" method="get" action="search.php">
+      <input type="hidden" name="q" value="<?php echo htmlspecialchars($q); ?>" />
 
       <div class="fieldFatema">
         <label for="category">Category</label>
-        <select id="category">
+        <select id="category" name="category">
           <option value="">Any</option>
-          <option>Action</option>
-          <option>Drama</option>
-          <option>Comedy</option>
+          <option value="Action"   <?php if($category==='Action')   echo 'selected'; ?>>Action</option>
+          <option value="Drama"    <?php if($category==='Drama')    echo 'selected'; ?>>Drama</option>
+          <option value="Comedy"   <?php if($category==='Comedy')   echo 'selected'; ?>>Comedy</option>
+          <option value="Sci-Fi"   <?php if($category==='Sci-Fi')   echo 'selected'; ?>>Sci-Fi</option>
+          <option value="Thriller" <?php if($category==='Thriller') echo 'selected'; ?>>Thriller</option>
+          <option value="Romance"  <?php if($category==='Romance')  echo 'selected'; ?>>Romance</option>
+          <option value="Fantasy"  <?php if($category==='Fantasy')  echo 'selected'; ?>>Fantasy</option>
+          <option value="Crime"    <?php if($category==='Crime')    echo 'selected'; ?>>Crime</option>
+          <option value="Musical"  <?php if($category==='Musical')  echo 'selected'; ?>>Musical</option>
         </select>
       </div>
 
       <div class="fieldFatema">
         <label for="year">Year</label>
-        <input id="year" type="number" placeholder="e.g., 2024" />
+        <input id="year" name="year" type="number" placeholder="e.g., 2024"
+               value="<?php echo htmlspecialchars($year); ?>" />
       </div>
 
       <div class="fieldFatema">
-        <label for="rating">Minimum rating</label>
-        <input id="rating" type="number" min="0" max="10" step="0.1" placeholder="e.g., 7.5" />
+          
+          <!-- kept for UI [rating], not used in SQL yet --> 
+     <!--   <label for="rating">Minimum rating</label>
+        
+        <input id="rating" name="rating" type="number" min="0" max="10" step="0.1"
+               placeholder="e.g., 7.5"
+               value="<?php echo htmlspecialchars($minRating); ?>" /> -->
       </div>
 
-        <div class="fieldFatema">
-  <label for="duration">Duration</label>
-  <select id="duration">
-    <option value="">Any</option>
-    <option value="60">&lt; 1 hour</option>
-    <option value="90">&lt; 1 hour 30 min</option>
-    <option value="120">&lt; 2 hours</option>
-    <option value="150">&lt; 2 hours 30 min</option>
-    <option value="180">&lt; 3 hours</option>
-  </select>
-</div>
+      <div class="fieldFatema">
+        <label for="duration">Duration</label>
+        <select id="duration" name="duration">
+          <option value="">Any</option>
+          <option value="60"  <?php if($maxMinutes==='60')  echo 'selected'; ?>>&lt; 1 hour</option>
+          <option value="90"  <?php if($maxMinutes==='90')  echo 'selected'; ?>>&lt; 1 hour 30 min</option>
+          <option value="120" <?php if($maxMinutes==='120') echo 'selected'; ?>>&lt; 2 hours</option>
+          <option value="150" <?php if($maxMinutes==='150') echo 'selected'; ?>>&lt; 2 hours 30 min</option>
+          <option value="180" <?php if($maxMinutes==='180') echo 'selected'; ?>>&lt; 3 hours</option>
+        </select>
+      </div>
 
-        
-        
       <div class="drawerActionsFatema">
         <button class="btnFatema" type="button" id="clearFilters">Clear</button>
-        <button class="btnFatema brand" type="button" id="applyFilters">Apply</button>
+        <button class="btnFatema brand" type="submit" id="applyFilters">Apply</button>
       </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const filterBtn   = document.getElementById('filterBtn');
+const drawer      = document.getElementById('filterDrawer');
+const closeDrawer = document.getElementById('closeDrawer');
+const clearBtn    = document.getElementById('clearFilters');
+
+if (filterBtn)   filterBtn.addEventListener('click', () => drawer.classList.add('open'));
+if (closeDrawer) closeDrawer.addEventListener('click', () => drawer.classList.remove('open'));
+if (drawer) {
+  drawer.addEventListener('click', (e) => {
+    if (e.target === drawer) drawer.classList.remove('open');
+  });
+}
+
+if (clearBtn) {
+  clearBtn.addEventListener('click', () => {
+    document.getElementById('category').value = '';
+    document.getElementById('year').value = '';
+  //  document.getElementById('rating').value = '';
+    document.getElementById('duration').value = '';
+  });
+}
+</script>
+
+<footer>
+  <div class="footer-content">
+    <div class="vision-title">OUR VISION</div>
+    <div class="vision-text">
+      At StoryLense, we make rating movies simple, engaging, and accessible for everyone
+    </div>
+    <div class="copyright">&copy; StoryLense. All rights reserved.</div>
+    <div class="social-icons">
+      <img src="images/x-logo.png" alt="X" class="social-icon">
+      <img src="images/instagram-logo.png" alt="Instagram" class="social-icon">
     </div>
   </div>
-     
-     
+</footer>
 
-  <script>
-    // Wire up Filter drawer
-    const filterBtn = document.getElementById('filterBtn');
-    const drawer = document.getElementById('filterDrawer');
-    const closeDrawer = document.getElementById('closeDrawer');
-    const clearBtn = document.getElementById('clearFilters');
-    const applyBtn = document.getElementById('applyFilters');
-
-    if (filterBtn) filterBtn.addEventListener('click', () => drawer.classList.add('open'));
-    if (closeDrawer) closeDrawer.addEventListener('click', () => drawer.classList.remove('open'));
-    if (drawer) drawer.addEventListener('click', (e) => {
-      if (e.target === drawer) drawer.classList.remove('open');
-    });
-
-    // Fake actions for demo
-    if (clearBtn) clearBtn.addEventListener('click', () => {
-      document.getElementById('category').value = '';
-      document.getElementById('year').value = '';
-      document.getElementById('rating').value = '';
-    });
-    if (applyBtn) applyBtn.addEventListener('click', () => drawer.classList.remove('open'));
-
-    // Toggle pill active style
-    document.querySelectorAll('.pillFatema').forEach(p => {
-      p.addEventListener('click', () => p.classList.toggle('active'));
-    });
-
-    // Optional: header Search button (placeholder)
-    document.getElementById('headerSearchBtn')?.addEventListener('click', () => {
-      const q = document.getElementById('q')?.value?.trim() || '';
-      // TODO: hook into your actual search logic
-      console.log('Search clicked:', q);
-    });
-  </script>
-
-  <!-- Footer -->
-  <footer>
-    <div class="footer-content">
-      <div class="vision-title">OUR VISION</div>
-      <div class="vision-text">
-        At StoryLense, we make rating movies simple, engaging, and accessible for everyone
-      </div>
-      <div class="copyright">&copy; StoryLense. All rights reserved.</div>
-      <div class="social-icons">
-        <img src="images/x-logo.png" alt="X" class="social-icon">
-        <img src="images/instagram-logo.png" alt="Instagram" class="social-icon">
-      </div>
-    </div>
-  </footer>
-    
-    
-    
 </body>
-  </html>
+</html>
