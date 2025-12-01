@@ -10,7 +10,7 @@ require_once 'connect.php'; // $conn (mysqli)
 $isLoggedIn = isset($_SESSION['user_id']);
 
 /*
-  From SQL:
+  From your SQL:
 
   movie(
     movieID, title, genre, duration, description, posterURL, releaseDate
@@ -20,7 +20,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 // -------- read filters from GET ----------
 $q          = isset($_GET['q']) ? trim($_GET['q']) : '';
 $category   = isset($_GET['category']) ? trim($_GET['category']) : '';
-$year       = isset($_GET['year']) ? trim($_GET['year']) : '';
+//$year       = isset($_GET['year']) ? trim($_GET['year']) : '';
 //$minRating  = isset($_GET['rating']) ? trim($_GET['rating']) : '';   // not used yet
 $maxMinutes = isset($_GET['duration']) ? trim($_GET['duration']) : '';
 
@@ -49,11 +49,11 @@ if ($category !== '') {
     $sql .= " AND genre = '{$categoryEsc}'";
 }
 
-// year → from releaseDate
+/*// year → from releaseDate
 if ($year !== '') {
     $yearInt = (int)$year;
     $sql .= " AND YEAR(releaseDate) = {$yearInt}";
-}
+}*/
 
 // duration filter (minutes)
 if ($maxMinutes !== '') {
@@ -594,11 +594,11 @@ body{background:var(--bg); color:var(--text); margin:0}
         </select>
       </div>
 
-      <div class="fieldFatema">
+  <!--    <div class="fieldFatema">
         <label for="year">Year</label>
         <input id="year" name="year" type="number" placeholder="e.g., 2024"
                value="<?php echo htmlspecialchars($year); ?>" />
-      </div>
+      </div> -->
 
       <div class="fieldFatema">
           
