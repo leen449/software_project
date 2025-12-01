@@ -9,11 +9,11 @@
   <link rel="stylesheet" href="log.css">
 </head>
 <body>
+
   <!-- Header -->
   <header>
     <div class="header-content">
       <img src="images/logo.jpg" alt="StoryLense Logo" class="logo">
-     
     </div>
   </header>
 
@@ -22,12 +22,31 @@
     <div class="login-box">
       <h2>Login</h2>
 
+      <!-- 🔥 Display error messages -->
+      <?php if (isset($_GET['error'])): ?>
+          <p style="color:#ff8080; margin-bottom: 15px;">
+              <?php
+                  if ($_GET['error'] === 'empty') {
+                      echo "Please fill in all fields.";
+                  }
+                  elseif ($_GET['error'] === 'invalid') {
+                      echo "Incorrect email or password.";
+                  }
+                  elseif ($_GET['error'] === 'not_logged_in') {
+                      echo "You must be logged in to access that page.";
+                  }
+              ?>
+          </p>
+      <?php endif; ?>
+
+      <!-- Login Form -->
       <form class="login-form" action="login_process.php" method="POST">
         <input type="email" name="email" placeholder="Email Address" required>
         <input type="password" name="password" placeholder="Password" required>
- <a href="home.php">
-          <button type="button">Login</button>
-        </a>      </form>
+
+        <!-- ✔ Correct submit button -->
+        <button type="submit">Login</button>
+      </form>
 
       <div class="signup-link">
         Don't have an account? <a href="sign.php">Sign up</a>
@@ -49,5 +68,6 @@
       </div>
     </div>
   </footer>
+
 </body>
 </html>

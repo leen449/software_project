@@ -1,28 +1,20 @@
 <?php
-// Start the session
+// Start session only if none exists
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Security improvement: regenerate session ID occasionally
+// Regenerate session for security
 if (!isset($_SESSION['regenerated'])) {
     session_regenerate_id(true);
     $_SESSION['regenerated'] = true;
 }
 
-// Optional: Prevent pages from being accessed without login
-
-    if (!isset($_SESSION['userID'])) {
-header("Location: login.php?error=not_logged_in");     
-exit;
-    }
-
-
-/*Optional: Check admin role
-function requireAdmin() {
-    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-        header("Location: log.php");
-        exit;
-    }
+// --- CHECK LOGIN STATUS ---
+// If no userID in session → user is NOT logged in
+if (!isset($_SESSION['userID'])) {
+    // Redirect to login page WITH a meaningful error
+    header("Location: log.php?error=not_logged_in");
+    exit;
 }
-?>*/
+?>
