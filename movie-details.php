@@ -496,16 +496,18 @@ if ($fullStars > 5) $fullStars = 5;
 
 <!-- Search bar → search.php?q=... -->
 <script>
-  const searchBar = document.querySelector('.search-bar');
-  if (searchBar) {
+const searchBar = document.querySelector('.search-bar');
+
+if (searchBar) {
     searchBar.addEventListener('keypress', function (event) {
-      if (event.key === 'Enter' && searchBar.value.trim() !== '') {
-        const query = encodeURIComponent(searchBar.value.trim());
-        window.location.href = `search.php?q=${query}`;
-      }
+        if (event.key === 'Enter' && searchBar.value.trim() !== '') {
+            const query = encodeURIComponent(searchBar.value.trim());
+            window.location.href = `search.php?q=${query}`;
+        }
     });
-  }
+}
 </script>
+
 
 <!-- Footer -->
 <footer>

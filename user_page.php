@@ -368,17 +368,18 @@ if ($stmt) {
     </script>
 
     <!-- Search bar → search.php -->
-    <script>
-      const searchBar = document.querySelector('.search-bar');
+   <script>
+const searchBar = document.querySelector('.search-bar');
 
-      if (searchBar) {
-        searchBar.addEventListener('keypress', function (event) {
-          if (event.key === 'Enter' && searchBar.value.trim() !== '') {
+if (searchBar) {
+    searchBar.addEventListener('keypress', function (event) {
+        if (event.key === 'Enter' && searchBar.value.trim() !== '') {
             const query = encodeURIComponent(searchBar.value.trim());
             window.location.href = `search.php?q=${query}`;
-          }
-        });
-      }
-    </script>
+        }
+    });
+}
+</script>
+
   </body>
 </html>
