@@ -5,7 +5,7 @@ session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-require_once 'connect.php'; // $conn (mysqli)
+require_once 'connection.php'; // $conn (mysqli)
 
 $isLoggedIn = isset($_SESSION['user_id']);
 
@@ -537,8 +537,8 @@ body{background:var(--bg); color:var(--text); margin:0}
   
         <a href="user_page.php"><img src="images/user.png" alt="User" class="user-pic"></a>
     <?php else: ?>
-        <a href="index.php" class="home-btn">Home Page</a>
-        <a href="log.php"><img src="images/user.png" alt="User" class="user-pic"></a>
+        <a href="home.php" class="home-btn">Home Page</a>
+        <a href="user_page.php"><img src="images/user.png" alt="User" class="user-pic"></a>
     <?php endif; ?>
 
   </div>
