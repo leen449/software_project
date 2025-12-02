@@ -1,3 +1,202 @@
+<?php
+// ====================== BACKEND ======================
+require_once 'session.php';     // checks user is logged in
+require_once 'connection.php';  // $conn (mysqli)
+
+$userID = $_SESSION['userID'] ?? null;
+
+$successMsg = "";
+$errorMsg   = "";
+
+// -------- 1) Get movie ID from URL --------
+$movieID = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+if ($movieID <= 0) {
+    $movieExists = false;
+    $movie       = null;
+} else {
+    $movieExists = true;
+}
+
+// -------- 2) Handle rating form (POST) --------
+if ($movieExists && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rate_submit'])) {
+
+    $ratingRaw = $_POST['rating'] ?? "";
+    $watchType = $_POST['watch']  ?? "";
+
+    // Basic validation
+    if (!ctype_digit($ratingRaw)) {
+        $errorMsg = "Please select a rating between 1 and 5 stars.";
+    } else {
+        $score = (int)$ratingRaw;
+        if ($score < 1 || $score > 5) {
+            $errorMsg = "Please select a rating between 1 and 5 stars.";
+        } elseif (!in_array($watchType, ['first', 'rewatch'], true)) {
+            $errorMsg = "Please choose a valid watch type.";
+        } else {
+            // Check if this user already has a rating for this movie
+            $stmt = $conn->prepare("
+                SELECT ratingID, type
+                FROM rating
+                WHERE userID = ? AND movieID = ?
+                ORDER BY createdAt DESC
+                LIMIT 1
+            ");
+            if ($stmt) {
+                $stmt->bind_param("ii", $userID, $movieID);
+                $stmt->execute();
+                $stmt->store_result();
+
+                $existingType = null;
+                if ($stmt->num_rows > 0) {
+                    $stmt->bind_result($existingRatingID, $existingType);
+                    $stmt->fetch();
+                }
+                $stmt->close();
+            }
+
+            // If already first-watch and they try first again → block
+            if ($existingType === 'first' && $watchType === 'first') {
+                $errorMsg = "This movie is already in your shelf as a first watch. "
+                          . "You can choose Rewatch or edit your rating from My Shelf.";
+            } else {
+                // Insert new rating
+                $stmt = $conn->prepare("
+                    INSERT INTO rating (userID, movieID, score, type, createdAt)
+                    VALUES (?, ?, ?, ?, NOW())
+                ");
+                if ($stmt) {
+                    $stmt->bind_param("iiis", $userID, $movieID, $score, $watchType);
+                    if ($stmt->execute()) {
+                        $stmt->close();
+
+                        // Ensure shelf row for this user
+                        $shelfID = null;
+                        $stmtShelf = $conn->prepare("SELECT shelfID FROM shelf WHERE userID = ? LIMIT 1");
+                        if ($stmtShelf) {
+                            $stmtShelf->bind_param("i", $userID);
+                            $stmtShelf->execute();
+                            $stmtShelf->bind_result($shelfID);
+                            if (!$stmtShelf->fetch()) {
+                                $shelfID = null;
+                            }
+                            $stmtShelf->close();
+                        }
+
+                        // If no shelf, create one
+                        if ($shelfID === null) {
+                            $stmtNewShelf = $conn->prepare("INSERT INTO shelf (userID) VALUES (?)");
+                            if ($stmtNewShelf) {
+                                $stmtNewShelf->bind_param("i", $userID);
+                                if ($stmtNewShelf->execute()) {
+                                    $shelfID = $conn->insert_id;
+                                }
+                                $stmtNewShelf->close();
+                            }
+                        }
+
+                        // Ensure movie is on shelfmovie for this shelf
+                        if ($shelfID !== null) {
+                            $existsOnShelf = false;
+                            $stmtCheck = $conn->prepare("
+                                SELECT 1 FROM shelfmovie
+                                WHERE shelfID = ? AND movieID = ?
+                                LIMIT 1
+                            ");
+                            if ($stmtCheck) {
+                                $stmtCheck->bind_param("ii", $shelfID, $movieID);
+                                $stmtCheck->execute();
+                                $stmtCheck->store_result();
+                                if ($stmtCheck->num_rows > 0) {
+                                    $existsOnShelf = true;
+                                }
+                                $stmtCheck->close();
+                            }
+
+                            if (!$existsOnShelf) {
+                                $stmtAdd = $conn->prepare("
+                                    INSERT INTO shelfmovie (shelfID, movieID, addedAt)
+                                    VALUES (?, ?, NOW())
+                                ");
+                                if ($stmtAdd) {
+                                    $stmtAdd->bind_param("ii", $shelfID, $movieID);
+                                    $stmtAdd->execute();
+                                    $stmtAdd->close();
+                                }
+                            }
+                        }
+
+                        // Final success message
+                        $successMsg = ($watchType === 'first')
+                            ? "Rating saved and movie added to your shelf."
+                            : "Rewatch rating saved successfully.";
+                    } else {
+                        $errorMsg = "Something went wrong while saving your rating.";
+                    }
+                } else {
+                    $errorMsg = "Unable to prepare rating insert.";
+                }
+            }
+        }
+    }
+}
+
+// -------- 3) Load movie details --------
+$movie = null;
+$avgRating = null;
+$ratingCount = 0;
+
+if ($movieExists) {
+    $stmtMovie = $conn->prepare("
+        SELECT title, genre, duration, description, posterURL, releaseDate
+        FROM movie
+        WHERE movieID = ?
+    ");
+    if ($stmtMovie) {
+        $stmtMovie->bind_param("i", $movieID);
+        $stmtMovie->execute();
+        $stmtMovie->bind_result($title, $genre, $duration, $description, $posterURL, $releaseDate);
+        if ($stmtMovie->fetch()) {
+            $movie = [
+                'title'       => $title,
+                'genre'       => $genre,
+                'duration'    => $duration,
+                'description' => $description,
+                'posterURL'   => $posterURL,
+                'releaseDate' => $releaseDate,
+            ];
+        } else {
+            $movieExists = false;
+        }
+        $stmtMovie->close();
+    }
+
+    // Average rating
+    if ($movieExists) {
+        $stmtAvg = $conn->prepare("
+            SELECT AVG(score) AS avgScore, COUNT(*) AS cnt
+            FROM rating
+            WHERE movieID = ?
+        ");
+        if ($stmtAvg) {
+            $stmtAvg->bind_param("i", $movieID);
+            $stmtAvg->execute();
+            $stmtAvg->bind_result($avgScore, $cnt);
+            if ($stmtAvg->fetch() && $cnt > 0) {
+                $avgRating  = (float)$avgScore;
+                $ratingCount = (int)$cnt;
+            }
+            $stmtAvg->close();
+        }
+    }
+}
+
+// Compute star display for average
+$avgDisplay = $avgRating !== null ? number_format($avgRating, 1) : '—';
+$fullStars  = $avgRating !== null ? (int)round($avgRating) : 0;
+if ($fullStars < 0) $fullStars = 0;
+if ($fullStars > 5) $fullStars = 5;
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,611 +204,323 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Movie Details</title>
   <link rel="icon" href="images/logo.png" type="image/png" />
-   <link rel="stylesheet" href="main.css">
+  <link rel="stylesheet" href="main.css" />
 
   <style>
+    /* ====== your existing styles (trimmed to the important parts) ====== */
     :root{
       --mdp-bg:#0f1115;
       --mdp-card:#161a22;
       --mdp-soft:#1e2430;
       --mdp-text:#e7eaf0;
       --mdp-dim:#aab0bd;
-      --mdp-accent:#7c5bff; /* زر Rate */ 
+      --mdp-accent:#7c5bff;
       --mdp-star:#f0c419;
-      --mdp-border: #2a3040;
-      --mdp-success: #1db954;
+      --mdp-border:#2a3040;
+      --mdp-success:#1db954;
     }
     *{box-sizing:border-box}
+    body{margin:0;background:#0f1115;color:var(--mdp-text);}
 
-    /* ===== Page container ===== */
-    .mdp-wrap{
-      max-width:1100px;margin-inline:auto;padding:24px 20px 80px;
-    }
-    .mdp-hero{
-      display:grid;grid-template-columns: 320px 1fr;gap:28px;
-      align-items:start;
-    }
+    .mdp-wrap{max-width:1100px;margin-inline:auto;padding:24px 20px 80px;}
+    .mdp-hero{display:grid;grid-template-columns:320px 1fr;gap:28px;align-items:start;}
     .mdp-poster{
       width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.35);
-      background:#222;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);background:#222;
+      transition:transform .3s, box-shadow .3s;
     }
+    .mdp-poster:hover{transform:scale(1.03);box-shadow:0 8px 25px rgba(0,183,255,.25);}
     .mdp-info{
       background:linear-gradient(180deg, rgba(124,92,255,.06), transparent 40%);
-      border:1px solid var(--mdp-border);
-      border-radius:16px;padding:24px 24px 20px;
+      border:1px solid var(--mdp-border);border-radius:16px;
+      padding:24px 24px 20px;transition:all .3s;
     }
-
-    .mdp-title{font-size:clamp(24px, 3vw, 36px);line-height:1.2;margin:0 0 8px}
-    .mdp-desc{color:var(--mdp-dim);margin:0 0 16px}
-
-    .mdp-meta{
-      display:flex;flex-wrap:wrap;gap:10px 18px;margin:12px 0 18px;
-      color:#c7ccda;font-size:14px;
+    .mdp-info:hover{
+      transform:translateY(-4px);
+      box-shadow:0 8px 20px rgba(0,183,255,.15);
+      border-color:rgba(0,183,255,.25);
     }
+    .mdp-title{font-size:clamp(24px,3vw,36px);margin:0 0 8px}
+    .mdp-desc{
+      color:var(--mdp-dim);font-size:16px;line-height:1.75;margin-bottom:18px;
+      max-width:62ch;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:8;overflow:hidden;
+    }
+    .mdp-meta{display:flex;flex-wrap:wrap;gap:10px 18px;margin:12px 0 18px;color:#c7ccda;font-size:14px;}
     .mdp-chip{
       background:var(--mdp-soft);border:1px solid var(--mdp-border);color:#d5d9e4;
-      padding:6px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;
-      font-weight:500;
+      padding:6px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;font-weight:500;
+      transition:transform .2s, background .3s, box-shadow .3s;
     }
-    .mdp-chip i{opacity:.85}
+    .mdp-chip:hover{transform:translateY(-3px);background:rgba(255,255,255,.08);box-shadow:0 0 10px rgba(255,255,255,.15);}
 
-    /* ===== Average rating (display only) ===== */
-    .mdp-avg{
-      display:flex;align-items:center;gap:12px;margin-top:8px;
-    }
-    .mdp-stars{
-      display:inline-flex;gap:4px;font-size:22px;line-height:1;
-    }
-    .mdp-stars .full{color:var(--mdp-star)}
-    .mdp-stars .empty{color:#4a4f5e}
-    .mdp-avg-number{font-weight:700;letter-spacing:.3px}
+    .mdp-avg{display:flex;align-items:center;gap:12px;margin-top:8px;}
+    .mdp-stars{display:inline-flex;gap:4px;font-size:22px;line-height:1;}
+    .mdp-stars .full{color:var(--mdp-star);}
+    .mdp-stars .empty{color:#4a4f5e;}
+    .mdp-avg-number{font-weight:700;letter-spacing:.3px;}
 
-    /* ===== Rate button ===== */
     .mdp-actions{margin-top:18px}
     .mdp-btn{
-      appearance:none;
-	  border:none;
-	  cursor:pointer;
-      background:var(--mdp-accent);
-	  color:white;
-	  font-weight:700;
-      padding:12px 18px;
-	  border-radius:10px;
-	  text-decoration:none;
-	  display:inline-flex;
-	  gap:10px;align-items:center;
-      box-shadow:0 8px 20px rgba(124,92,255,.35);
-   /*   transition:transform .12s ease, box-shadow .2s ease, opacity .2s ease; */
-	  
-	  
-	  
-   
+      appearance:none;border:none;cursor:pointer;
+      background:#7c5bff;color:#fff;font-weight:700;
+      padding:12px 18px;border-radius:10px;text-decoration:none;
+      display:inline-flex;gap:10px;align-items:center;
+      box-shadow:0 4px 12px rgba(124,92,255,.3);
+      transition:all .3s;
     }
-    .mdp-btn:hover{
-	transform:translateY(-1px);
-	box-shadow:0 10px 24px rgba(124,92,255,.45)
-	}
-	
-    .mdp-btn:active{
-	transform:translateY(-3px);
-  box-shadow: 0 8px 20px rgba(124, 92, 255, 0.5);
-	
-	}
-	
-	
-	.modal-buttons button:active {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(124, 92, 255, 0.5);
-}
+    .mdp-btn:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(124,92,255,.5);}
+    .mdp-btn:active{transform:translateY(-1px);}
 
-	
-	
-	
-	
-    .mdp-btn .secondary{
-      background:transparent;border:1px solid var(--mdp-border);color:#dfe3ee;box-shadow:none;
-    }
+    .mdp-msg-success{color:#7CFC7C;margin-top:10px;}
+    .mdp-msg-error{color:#ff8080;margin-top:10px;}
 
-    /* ===== Modal using :target ===== */
+    /* ===== Modal ===== */
     .mdp-modal{
       position:fixed;inset:0;display:none;place-items:center;padding:24px;
-      background:rgba(8,10,14,.6);backdrop-filter: blur(6px);z-index:50;
+      background:rgba(0,0,0,.6);backdrop-filter:blur(10px);z-index:50;
     }
-    .mdp-modal:target{display:grid;}
+    .mdp-modal.open{display:grid;}
     .mdp-modal-card{
-      width:min(560px, 94vw);
-      background:var(--mdp-card);border:1px solid var(--mdp-border);border-radius:16px;padding:22px 20px 20px;
-      box-shadow:0 10px 40px rgba(0,0,0,.5);animation:pop .18s ease-out;
+      width:min(420px,94vw);background:#1e1442;color:#fff;
+      padding:25px 30px;border-radius:12px;box-shadow:0 0 15px rgba(0,0,0,.5);
+      animation:modalFadeIn .3s ease;
     }
-    @keyframes pop{from{transform:scale(.98);opacity:.6}to{transform:scale(1);opacity:1}}
+    @keyframes modalFadeIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+    .mdp-modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .mdp-modal-title{margin:0 0 10px;color:#e6dcff;}
 
-    .mdp-modal-head{
-      display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;
-    }
-    .mdp-modal-title{font-size:20px;margin:0}
-    .mdp-close{
-      text-decoration:none;color:#9aa3b2;border:1px solid var(--mdp-border);
-      padding:6px 10px;border-radius:8px;font-size:14px;
-    }
-   
-
-    /* stars input (5) */
-    .mdp-rate-fieldset{border:0;margin:10px 0 6px;padding:0}
+    /* ===== 5-star input (1–5) ===== */
+    .mdp-rate-fieldset{border:0;margin:10px 0;padding:0;}
     .mdp-star-input{
-      display:flex;flex-direction:row-reverse;gap:8px;justify-content:flex-start;
+      display:flex;flex-direction:row-reverse;justify-content:flex-start;gap:4px;
     }
-    .mdp-star-input input{display:none}
+    .mdp-star-input input{display:none;}
     .mdp-star-input label{
-      cursor:pointer;font-size:28px;line-height:1;color:#4a4f5e;transition:transform .08s ease;
+      font-size:32px;color:#4a4f5e;cursor:pointer;transition:.15s;
     }
-    .mdp-star-input label:hover{transform:scale(1.05)}
-    /* hover fill */
     .mdp-star-input label:hover,
-    .mdp-star-input label:hover ~ label{color:var(--mdp-star)}
-    /* checked fill */
-    .mdp-star-input input:checked ~ label{color:var(--mdp-star)}
+    .mdp-star-input label:hover ~ label{
+      color:var(--mdp-star);transform:scale(1.1);
+    }
+    .mdp-star-input input:checked ~ label{color:var(--mdp-star);}
 
-    /* First / Rewatch (radio) */
-    .mdp-radio-row{display:flex;gap:14px;margin:14px 0 6px}
+    .mdp-radio-row{display:flex;gap:14px;margin:14px 0 6px;}
     .mdp-radio{
-      display:flex;align-items:center;gap:8px;background:var(--mdp-soft);
-      border:1px solid var(--mdp-border);padding:8px 12px;border-radius:999px;
-      font-size:14px;cursor:pointer;
-    }
-    .mdp-radio input{accent-color:var(--mdp-accent);}
-
-    .mdp-modal-actions{
-      margin-top:16px;
-	  display:flex;
-	  gap:10px;
-	  
-	  align-items:flex-start;
-	  
-	  justify-content:flex-end;
+      display:flex;align-items:center;gap:8px;
+      background:transparent;border:1px solid rgba(255,255,255,.15);
+      padding:8px 12px;border-radius:999px;font-size:14px;cursor:pointer;color:#e6dcff;
     }
 
-    /* ===== Success toast via :target ===== */
+    .mdp-modal-actions{margin-top:16px;display:flex;gap:10px;justify-content:flex-end;}
+    .mdp-cancel{
+      background:rgba(255,255,255,.08);color:#e6dcff;
+      border:1px solid rgba(255,255,255,.15);
+    }
+    .mdp-cancel:hover{background:rgba(255,255,255,.15);}
+
     .mdp-toast{
       position:fixed;left:50%;transform:translateX(-50%);
       bottom:18px;background:var(--mdp-success);color:#0b1a0b;
-      padding:12px 16px;border-radius:10px;font-weight:700;opacity:0;pointer-events:none;
-      transition:opacity .18s ease, transform .18s ease;
-      z-index:60;border:1px solid rgba(0,0,0,.2);
+      padding:12px 16px;border-radius:10px;font-weight:700;
+      opacity:0;pointer-events:none;transition:opacity .18s;z-index:60;
+      border:1px solid rgba(0,0,0,.2);
     }
-    #rate-success:target ~ .mdp-toast{
-      opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);
+    .mdp-toast.show{opacity:1;pointer-events:auto;}
+
+    @media (max-width:950px){
+      .mdp-hero{grid-template-columns:1fr;gap:18px;}
+      .mdp-poster{width:100%;height:auto;aspect-ratio:2/3;margin:0 auto 18px;}
+      .mdp-info{padding:18px;}
     }
-
-    /* ===== Responsive ===== */
-    @media (max-width: 900px){
-      .mdp-hero{grid-template-columns: 1fr;gap:18px}
-      .mdp-poster{max-width:380px;margin-inline:auto}
-      .mdp-info{padding:18px}
-      .mdp-modal-card{width:min(520px, 94vw);}
-    }
-	
-
-.mdp-hero{
-  grid-template-columns: 360px 1fr;   
-  align-items: center;                 
-  gap: 32px;
-}
-
-
-.mdp-poster{
-  width: 100%;
-  height: 520px;         
-  aspect-ratio: auto;    
-  object-fit: cover;     
-  border-radius: 18px;
-}
-
-
-.mdp-info{
-  min-height: 520px;     
-  display: flex;
-  flex-direction: column;
-  justify-content: center; 
-  padding: 26px 28px;
-}
-
-
-.mdp-desc{
-  color: var(--mdp-dim);
-  font-size: 15.5px;
-  margin-bottom: 18px;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;     
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.mdp-meta{ margin: 10px 0 14px; gap: 10px 14px; }
-.mdp-avg{ margin-top: 6px; }
-.mdp-actions{ margin-top: 16px; }
-
-
-@media (max-width: 900px){
-  .mdp-hero{ grid-template-columns: 1fr; align-items: start; gap: 18px; }
-  .mdp-poster{ height: auto; aspect-ratio: 2/3; }
-  .mdp-info{ min-height: unset; padding: 18px; }
-  .mdp-desc{ -webkit-line-clamp: 6; } 
-}
-	
-
-.mdp-hero{ grid-template-columns: 320px 1fr; }
-
-
-.mdp-desc{
-  color: var(--mdp-dim);
-  font-size: 16px;
-  line-height: 1.75;
-  margin-bottom: 18px;
-  max-width: 62ch;           
-  display: -webkit-box;
-  -webkit-line-clamp: 8;     
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-
-/* .mdp-desc{ display:block; -webkit-line-clamp:unset; overflow:visible; } */
-	
-.mdp-chip {
-  transition: transform .2s ease, background .3s ease, box-shadow .3s ease;
-}
-
-.mdp-chip:hover {
-  transform: translateY(-3px);
-  background: rgba(255,255,255,0.08);
-  box-shadow: 0 0 10px rgba(255,255,255,0.15);
-}
-	
-.mdp-btn {
-  background:#7c5bff;
-/*  linear-gradient(135deg, #00b7ff, #007bff); */
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 183, 255, 0.3);
-}
-
-.mdp-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 183, 255, 0.5);
-}
-
-.mdp-info {
-  transition: all 0.3s ease;
-}
-
-.mdp-info:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 183, 255, 0.15);
-  border-color: rgba(0, 183, 255, 0.25);
-}
-  
-
-.mdp-poster {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.mdp-poster:hover {
-  transform: scale(1.03);
-  box-shadow: 0 8px 25px rgba(0, 183, 255, 0.25);
-}
-
-
-
-
-
-#rate-modal.mdp-modal{
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(10px);
-}
-
-
-#rate-modal .mdp-modal-card{
-  background: #1e1442;
-  color: #fff;
-  width: min(420px, 94vw);
-  padding: 25px 30px;
-  border-radius: 12px;
-  border: none;
-  box-shadow: 0 0 15px rgba(0,0,0,0.5);
-  animation: modalFadeIn .3s ease;
-}
-
-
-#rate-modal .mdp-modal-title{
-  color: #e6dcff;
-  margin: 0 0 10px;
-  text-align: left;
-}
-
-
-#rate-modal .mdp-radio{
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: #e6dcff;
-}
-#rate-modal .mdp-radio input{ accent-color: #7c5bff; }
-
-
-#rate-modal .mdp-form input,
-#rate-modal .mdp-form textarea{
-  width: 100%;
-  border: none;
-  margin-top: 5px;
-  border-radius: 6px;
-  padding: 8px;
-  outline: none;
-  font: inherit;
-  font-size: .9rem;
-  background: #2a1d59;
-  color: #fff;
-}
-
-#rate-modal .mdp-btn {
-  background: #7c5bff;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(124, 92, 255, 0.3);
-  transition: all 0.3s ease;
-}
-
-#rate-modal .mdp-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(124, 92, 255, 0.5);
-}
-
-
-
-@keyframes modalFadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-	
-
-.mdp-cancel{
-  background:rgba(255,255,255,0.08);
-  color:#e6dcff;
-  border:1px solid rgba(255,255,255,0.15);
-  
-}
-.mdp-cancel:hover{
-  background:rgba(255,255,255,0.15);
-}
-	
-#rate-modal .mdp-btn {
-  min-width: 90px;
-  text-align: center;
-  
-  
-}
-	
-
-/* ========== Responsive fix ========== */
-@media screen and (max-width: 950px) {
-  .mdp-hero {
-    grid-template-columns: 1fr;
-    align-items: start;
-    gap: 18px;
-  }
-
-  .mdp-poster {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 2/3;
-    margin: 0 auto 18px auto;
-  }
-
-  .mdp-info {
-    padding: 18px;
-  }
-}
-	
-
   </style>
 </head>
 <body>
 
-            <!-- Header -->
-    <header>
-        <div class="header-content">
-            <img src="images/logo.jpg" alt="StoryLense Logo" class="logo">
-            <div class="search-container">
-                <input type="text" class="search-bar" placeholder="Search for movies...">
-            </div>
-            <a href="home.php" class="home-btn">Home Page</a>
-           <a href="user_page.php"> <img src="images/user.png" alt="User Profile" class="user-pic"></a>
-        </div>
-    </header>
+<!-- Header -->
+<header>
+  <div class="header-content">
+    <img src="images/logo.jpg" alt="StoryLense Logo" class="logo" />
+    <div class="search-container">
+      <input type="text" class="search-bar" placeholder="Search for movies..." />
+    </div>
+    <a href="home.php" class="home-btn">Home Page</a>
+    <a href="user_page.php"><img src="images/user.png" alt="User Profile" class="user-pic" /></a>
+  </div>
+</header>
 
-
-
-
-
-
-
-
-
-  <!-- Page Content -->
-  <main class="mdp-wrap">
+<main class="mdp-wrap">
+  <?php if (!$movieExists || $movie === null): ?>
+    <p style="color:#ccc;">Movie not found.</p>
+  <?php else: ?>
+    <?php
+      $poster   = $movie['posterURL'] ?: 'images/logo.jpg';
+      $yearText = $movie['releaseDate'] ? date('Y', strtotime($movie['releaseDate'])) : '';
+      $durationText = $movie['duration'] ? $movie['duration'] . ' min' : '';
+    ?>
     <section class="mdp-hero">
-      <!-- Poster -->
-      <img class="mdp-poster" src="images/avatar poster.jpeg" alt="Movie poster" />
+      <img class="mdp-poster" src="<?php echo htmlspecialchars($poster); ?>" alt="Movie poster" />
 
-      <!-- Info card -->
       <div class="mdp-info">
-        <h1 class="mdp-title">Avatar</h1>
-        <p class="mdp-desc">
-  On the lush moon of Pandora, a wounded ex-Marine enters the Na’vi world through
-  an avatar body. Tasked with gaining their trust, he becomes torn between a military
-  mission and a growing bond with the people and land. As tensions explode, he must
-  choose where he belongs. A sweeping sci-fi epic with pioneering visuals and an
-  emotional, eco-themed core.
-        </p>
+        <h1 class="mdp-title"><?php echo htmlspecialchars($movie['title']); ?></h1>
+        <p class="mdp-desc"><?php echo nl2br(htmlspecialchars($movie['description'])); ?></p>
 
         <div class="mdp-meta">
-          <span class="mdp-chip"><i>📅</i> 2024-10-12</span>
-          <span class="mdp-chip"><i>⏰</i> 2h 42m</span>
-          <span class="mdp-chip"><i>🎭</i> Science Fiction • Adventure</span>
+          <?php if ($yearText): ?>
+            <span class="mdp-chip"><i>📅</i> <?php echo htmlspecialchars($yearText); ?></span>
+          <?php endif; ?>
+          <?php if ($durationText): ?>
+            <span class="mdp-chip"><i>⏰</i> <?php echo htmlspecialchars($durationText); ?></span>
+          <?php endif; ?>
+          <?php if ($movie['genre']): ?>
+            <span class="mdp-chip"><i>🎭</i> <?php echo htmlspecialchars($movie['genre']); ?></span>
+          <?php endif; ?>
         </div>
 
-        <!-- Average rating display -->
+        <!-- Average rating -->
         <div class="mdp-avg" aria-label="Average user rating">
           <div class="mdp-stars" aria-hidden="true">
-            <span class="full">★</span>
-            <span class="full">★</span>
-            <span class="full">★</span>
-            <span class="full">★</span>
-            <span class="empty">★</span>
+            <?php for ($i = 1; $i <= 5; $i++): ?>
+              <span class="<?php echo ($i <= $fullStars) ? 'full' : 'empty'; ?>">★</span>
+            <?php endfor; ?>
           </div>
-          <div class="mdp-avg-number">4.2</div>
+          <div class="mdp-avg-number">
+            <?php echo htmlspecialchars($avgDisplay); ?>
+            <?php if ($ratingCount > 0): ?>
+              <span style="font-size:12px;color:#aab0bd;">(<?php echo $ratingCount; ?>)</span>
+            <?php endif; ?>
+          </div>
         </div>
 
         <div class="mdp-actions">
-          <!-- Open modal with :target -->
-          <a class="mdp-btn" href="#rate-modal" aria-haspopup="dialog" aria-controls="rate-modal">Rate</a>
+          <button class="mdp-btn" type="button" id="openRateModal">Rate</button>
         </div>
+
+        <?php if ($successMsg): ?>
+          <p class="mdp-msg-success"><?php echo htmlspecialchars($successMsg); ?></p>
+        <?php endif; ?>
+        <?php if ($errorMsg): ?>
+          <p class="mdp-msg-error"><?php echo htmlspecialchars($errorMsg); ?></p>
+        <?php endif; ?>
       </div>
     </section>
-  </main>
+  <?php endif; ?>
+</main>
 
-  <!-- ===== Modal (CSS :target) ===== -->
-  <section id="rate-modal" class="mdp-modal" role="dialog" aria-modal="true" aria-labelledby="rate-title">
-    <div class="mdp-modal-card">
-      <div class="mdp-modal-head">
-        <h2 id="rate-title" class="mdp-modal-title">Rate this movie</h2>
+<!-- Rating Modal -->
+<section id="rate-modal" class="mdp-modal" aria-modal="true" role="dialog">
+  <div class="mdp-modal-card">
+    <div class="mdp-modal-head">
+      <h2 class="mdp-modal-title">Rate this movie</h2>
+    </div>
+
+    <?php if ($movieExists && $movie !== null): ?>
+    <form class="mdp-form" method="post" action="movie-details.php?id=<?php echo urlencode($movieID); ?>">
+      <fieldset class="mdp-rate-fieldset">
+        <legend style="font-weight:700;margin-bottom:8px;">Your rating</legend>
+        <div class="mdp-star-input">
+          <!-- 5 stars (1–5) -->
+          <input type="radio" id="r5" name="rating" value="5" />
+          <label for="r5">★</label>
+
+          <input type="radio" id="r4" name="rating" value="4" />
+          <label for="r4">★</label>
+
+          <input type="radio" id="r3" name="rating" value="3" />
+          <label for="r3">★</label>
+
+          <input type="radio" id="r2" name="rating" value="2" />
+          <label for="r2">★</label>
+
+          <input type="radio" id="r1" name="rating" value="1" />
+          <label for="r1">★</label>
+        </div>
+      </fieldset>
+
+      <div style="margin-top:10px;font-weight:700;">Watch type</div>
+      <div class="mdp-radio-row">
+        <label class="mdp-radio">
+          <input type="radio" name="watch" value="first" checked /> First watch
+        </label>
+        <label class="mdp-radio">
+          <input type="radio" name="watch" value="rewatch" /> Rewatch
+        </label>
       </div>
 
-      <form class="mdp-form" action="#rate-success" method="get">
-        <!-- Stars -->
-        <fieldset class="mdp-rate-fieldset">
-          <legend style="font-weight:700;margin-bottom:8px">Your rating</legend>
-          <div class="mdp-star-input">
-            <!-- radio reversed so hover works left→right fill -->
-            <input type="radio" id="r5" name="rating" value="5" />
-            <label for="r5" aria-label="5 stars">★</label>
+      <div class="mdp-modal-actions">
+        <button class="mdp-btn" type="submit" name="rate_submit" value="1">Send</button>
+        <button type="button" class="mdp-btn mdp-cancel" id="closeRateModal">Cancel</button>
+      </div>
+    </form>
+    <?php else: ?>
+      <p style="color:#ccc;">Movie not found.</p>
+      <div class="mdp-modal-actions">
+        <button type="button" class="mdp-btn mdp-cancel" id="closeRateModal2">Close</button>
+      </div>
+    <?php endif; ?>
+  </div>
+</section>
 
-            <input type="radio" id="r4" name="rating" value="4" />
-            <label for="r4" aria-label="4 stars">★</label>
+<div class="mdp-toast" id="rateToast"><?php echo htmlspecialchars($successMsg); ?></div>
 
-            <input type="radio" id="r3" name="rating" value="3" />
-            <label for="r3" aria-label="3 stars">★</label>
-
-            <input type="radio" id="r2" name="rating" value="2" />
-            <label for="r2" aria-label="2 stars">★</label>
-
-            <input type="radio" id="r1" name="rating" value="1" />
-            <label for="r1" aria-label="1 star">★</label>
-          </div>
-        </fieldset>
-
-        <!-- First / Rewatch -->
-        <div style="margin-top:10px;font-weight:700">Watch type</div>
-        <div class="mdp-radio-row" role="radiogroup" aria-label="Watch type">
-          <label class="mdp-radio"><input type="radio" name="watch" value="first" checked /> First</label>
-          <label class="mdp-radio"><input type="radio" name="watch" value="rewatch" /> Rewatch</label>
-        </div>
-
-        <!-- Actions -->
-        <div class="mdp-modal-actions">
-          <!-- Send goes to #rate-success which shows toast and closes modal -->
-          <button class="mdp-btn" type="submit">Send</button>
-<button type="button"
-        class="mdp-btn mdp-cancel"
-        onclick="event.preventDefault(); location.hash=''; return false;">
-  Cancel
-</button>
-        </div>
-      </form>
-    </div>
-  </section>
-
-  <!-- ===== Success toast (visible when URL is #rate-success) ===== -->
-  <a id="rate-success"></a>
-  <div class="mdp-toast">✅ Rating submitted successfully!</div>
-
-
-
-
-
+<!-- Toast + modal JS -->
 <script>
-  (function () {
-    const form = document.querySelector(".mdp-form");
-    const toast = document.querySelector(".mdp-toast");
-    const SUCCESS_HASH = "rate-success";
-    const HIDE_AFTER = 3000;
+  const rateModal      = document.getElementById('rate-modal');
+  const openRateBtn    = document.getElementById('openRateModal');
+  const closeRateBtn   = document.getElementById('closeRateModal');
+  const closeRateBtn2  = document.getElementById('closeRateModal2');
+  const toast          = document.getElementById('rateToast');
 
-    function showToast() {
-      // امسحي أي inline style سبق وحطيناه
-      toast.removeAttribute("style");
-      // فعّلي :target
-      location.hash = SUCCESS_HASH;
+  if (openRateBtn) {
+    openRateBtn.addEventListener('click', () => {
+      rateModal.classList.add('open');
+    });
+  }
+  [closeRateBtn, closeRateBtn2].forEach(btn => {
+    if (btn) btn.addEventListener('click', () => rateModal.classList.remove('open'));
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target === rateModal) {
+      rateModal.classList.remove('open');
     }
+  });
 
-    function hideToastAfterDelay(ms = HIDE_AFTER) {
-      setTimeout(() => {
-        // اخفي التوست مؤقتًا ثم شيّلي الهاش
-        toast.style.opacity = "0";
-        toast.style.pointerEvents = "none";
-        history.replaceState(null, "", location.pathname + location.search);
-      }, ms);
-    }
-
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      showToast();
-      hideToastAfterDelay();
-    });
-
-    // لو تم فتح الصفحة وهي على #rate-success (نادرًا)
-    document.addEventListener("DOMContentLoaded", () => {
-      if (location.hash === "#" + SUCCESS_HASH) {
-        toast.removeAttribute("style");
-        hideToastAfterDelay();
-      }
-    });
-
-    // ولو تغيّر الهاش لأي سبب لـ #rate-success
-    window.addEventListener("hashchange", () => {
-      if (location.hash === "#" + SUCCESS_HASH) {
-        toast.removeAttribute("style");
-        hideToastAfterDelay();
-      }
-    });
-  })();
+  // Show toast if we have a success message
+  <?php if ($successMsg): ?>
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  <?php endif; ?>
 </script>
-<script>
-        const searchBar = document.querySelector('.search-bar');
 
-        searchBar.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter' && searchBar.value.trim() !== '') {
-                const query = encodeURIComponent(searchBar.value.trim());
-                window.location.href = `search.php?query=${query}`;
-            }
-        });
-    </script>
+<!-- Search bar → search.php?q=... -->
+<script>
+  const searchBar = document.querySelector('.search-bar');
+  if (searchBar) {
+    searchBar.addEventListener('keypress', function (event) {
+      if (event.key === 'Enter' && searchBar.value.trim() !== '') {
+        const query = encodeURIComponent(searchBar.value.trim());
+        window.location.href = `search.php?q=${query}`;
+      }
+    });
+  }
+</script>
 
 <!-- Footer -->
-        <footer>
-            <div class="footer-content">
-                <div class="vision-title">OUR VISION</div>
-                <div class="vision-text">
-                    At StoryLense, we make rating movies simple, engaging, and accessible for everyone
-                </div>
-                <div class="copyright">&copy; StoryLense. All rights reserved.</div>
-                <div class="social-icons">
-                    <img src="images/x-logo.png" alt="X" class="social-icon">
-                    <img src="images/instagram-logo.png" alt="Instagram" class="social-icon">
-                </div>
-            </div>
-        </footer>
-
+<footer>
+  <div class="footer-content">
+    <div class="vision-title">OUR VISION</div>
+    <div class="vision-text">
+      At StoryLense, we make rating movies simple, engaging, and accessible for everyone
+    </div>
+    <div class="copyright">&copy; StoryLense. All rights reserved.</div>
+    <div class="social-icons">
+      <img src="images/x-logo.png" alt="X" class="social-icon" />
+      <img src="images/instagram-logo.png" alt="Instagram" class="social-icon" />
+    </div>
+  </div>
+</footer>
 
 </body>
 </html>
-
-
