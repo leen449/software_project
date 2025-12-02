@@ -32,19 +32,42 @@
           </div>
 
           <!-- Hidden input to store the selected picture -->
-          <input type="hidden" name="selected_pic" id="selected_pic" value="rabbit.jpg" />
+          <input type="hidden" name="selected_pic" id="selected_pic" value="" required />
+         
+
 
           <input type="text" name="username" placeholder="Username" required />
           <input type="email" name="email" placeholder="Email Address" required />
-          <input type="password" name="password" placeholder="Password" required />
+          <input 
+            type="password" 
+            name="password" 
+            placeholder="Password"
+            required
+            pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}"
+            title="Password must be at least 8 characters long and include uppercase, lowercase, and numbers."
+          />
 
-          <button type="submit">Sign Up</button>
 
-          <?php if (isset($_GET['error']) && $_GET['error'] === 'emailExists'): ?>
-              <p class="error-message">This email is already registered.</p>
-          <?php elseif (isset($_GET['success'])): ?>
-              <p class="success-message">Account created! You can log in now.</p>
-          <?php endif; ?>
+            <button type="submit">Sign Up</button>
+            
+            <?php if (isset($_GET['error']) && $_GET['error'] === 'noPic'): ?>
+                <p class="error-message">Please choose a profile picture.</p>
+            <?php endif; ?>
+
+            
+            <?php if (isset($_GET['error']) && $_GET['error'] === 'weakPassword'): ?>
+                <p class="error-message">
+                    Password must be at least 8 characters, include uppercase, lowercase, and a number.
+                </p>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['error']) && $_GET['error'] === 'emailExists'): ?>
+                <p class="error-message">This email is already registered.</p>
+
+            <?php elseif (isset($_GET['success'])): ?>
+                <p class="success-message">Account created! You can log in now.</p>
+            <?php endif; ?>
+
         </form>
 
         <div class="login-link">
@@ -82,6 +105,18 @@
         });
       });
     </script>
+    
+ 
+    <script>
+        document.querySelector(".signup-form").addEventListener("submit", function(e) {
+            const selectedPic = document.getElementById("selected_pic").value;
 
+            if (selectedPic.trim() === "") {
+                e.preventDefault(); // stop form submit
+                alert("Please choose a profile picture."); // or replace with custom styled message
+            }
+        });
+    </script>
+    
   </body>
 </html>
