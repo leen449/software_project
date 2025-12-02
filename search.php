@@ -161,7 +161,7 @@ while ($row = $result->fetch_assoc()) {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Search UI Mockup</title>
+  <title>Search Results</title>
 
 <style>
 :root{
