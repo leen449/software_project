@@ -7,6 +7,19 @@ error_reporting(E_ALL);
 
 require_once 'connection.php'; // $conn (mysqli)
 
+if (isset($_SESSION['userID'])) {
+    $uid = $_SESSION['userID'];
+
+    $query = $conn->prepare("SELECT profilePicture FROM `user` WHERE userID = ?");
+    $query->bind_param("i", $uid);
+    $query->execute();
+    $result = $query->get_result()->fetch_assoc();
+    
+    if ($result && !empty($result['profilePicture'])) {
+        $userPic = $result['profilePicture'];
+    }
+}
+
 $isLoggedIn = isset($_SESSION['user_id']);
 
 /*
@@ -538,8 +551,9 @@ body{background:var(--bg); color:var(--text); margin:0}
         <a href="user_page.php"><img src="images/user.png" alt="User" class="user-pic"></a>
     <?php else: ?>
         <a href="home.php" class="home-btn">Home Page</a>
-        <a href="user_page.php"><img src="images/user.png" alt="User" class="user-pic"></a>
-    <?php endif; ?>
+<a href="user_page.php">
+        <img src="images/<?= htmlspecialchars($userPic) ?>" alt="User Profile" class="user-pic">
+    </a>    <?php endif; ?>
 
   </div>
 </header>

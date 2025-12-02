@@ -3,6 +3,20 @@
 require_once 'session.php';     // checks user is logged in
 require_once 'connection.php';  // $conn (mysqli)
 
+ $userPic = "user.png"; // fallback
+
+if (isset($_SESSION['userID'])) {
+    $uid = $_SESSION['userID'];
+
+    $query = $conn->prepare("SELECT profilePicture FROM `user` WHERE userID = ?");
+    $query->bind_param("i", $uid);
+    $query->execute();
+    $result = $query->get_result()->fetch_assoc();
+    
+    if ($result && !empty($result['profilePicture'])) {
+        $userPic = $result['profilePicture'];
+    }
+}
 $userID = $_SESSION['userID'] ?? null;
 
 $successMsg = "";
@@ -53,6 +67,8 @@ if ($movieExists && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rate_
                 }
                 $stmt->close();
             }
+            
+           
 
             // If already first-watch and they try first again → block
             if ($existingType === 'first' && $watchType === 'first') {
@@ -344,7 +360,9 @@ if ($fullStars > 5) $fullStars = 5;
       <input type="text" class="search-bar" placeholder="Search for movies..." />
     </div>
     <a href="home.php" class="home-btn">Home Page</a>
-    <a href="user_page.php"><img src="images/user.png" alt="User Profile" class="user-pic" /></a>
+    <a href="user_page.php">
+        <img src="images/<?= htmlspecialchars($userPic) ?>" alt="User Profile" class="user-pic">
+    </a>
   </div>
 </header>
 
