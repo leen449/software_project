@@ -253,13 +253,7 @@ if ($stmt) {
           <input type="hidden" name="rating_id" id="edit_rating_id">
 
           <label for="newRating">New Rating (⭐ 0 - 5):</label>
-          <input type="number" id="newRating" name="new_score" min="0" max="5" step="0.5" required />
-
-          <!-- review kept only for UI; not stored in DB -->
-          <label for="newReview">New Review (optional):</label>
-          <textarea id="newReview"
-                    rows="3"
-                    placeholder="Write your new review..."></textarea>
+          <input type="number" id="newRating" name="new_score" min="0" max="5" step="1" required />
 
           <div class="modal-buttons">
             <button id="saveEdit" type="submit">Save</button>
