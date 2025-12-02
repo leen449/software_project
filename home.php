@@ -2,7 +2,24 @@
 session_start();
 require_once 'connection.php';
 
-// 1) Fetch categories
+// Fetch logged-in user's profile picture
+$userPic = "user.png"; // fallback
+
+if (isset($_SESSION['userID'])) {
+    $uid = $_SESSION['userID'];
+
+    $query = $conn->prepare("SELECT profilePicture FROM `user` WHERE userID = ?");
+    $query->bind_param("i", $uid);
+    $query->execute();
+    $result = $query->get_result()->fetch_assoc();
+    
+    if ($result && !empty($result['profilePicture'])) {
+        $userPic = $result['profilePicture'];
+    }
+}
+
+
+// Fetch categories
 
 // Most Popular = newest release dates
 $popular = $conn->query("SELECT * FROM movie ORDER BY releaseDate DESC LIMIT 10");
@@ -36,7 +53,11 @@ $drama = $conn->query("SELECT * FROM movie WHERE genre = 'Drama'");
                 <input type="text" class="search-bar" placeholder="Search for movies...">
             </div>
             <a href="home.php" class="home-btn">Home Page</a>
-            <a href="user_page.php"><img src="images/user.png" alt="User Profile" class="user-pic"> </a>
+            
+            <a href="user_page.php">
+                <img src="images/<?= htmlspecialchars($userPic) ?>" alt="User Profile" class="user-pic">
+            </a>
+
         </div>
     </header>
 
@@ -181,12 +202,16 @@ $drama = $conn->query("SELECT * FROM movie WHERE genre = 'Drama'");
         }
 
         const searchBar = document.querySelector('.search-bar');
-        searchBar.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter' && searchBar.value.trim() !== '') {
-                const query = encodeURIComponent(searchBar.value.trim());
-                window.location.href = `search.php?query=${query}`;
-            }
-        });
+
+        if (searchBar) {
+            searchBar.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter' && searchBar.value.trim() !== '') {
+                    const query = encodeURIComponent(searchBar.value.trim());
+                    window.location.href = `search.php?q=${query}`;
+                }
+            });
+        }
+
     </script>
 
 </body>
