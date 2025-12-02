@@ -216,4 +216,3 @@ $drama = $conn->query("SELECT * FROM movie WHERE genre = 'Drama'");
 
 </body>
 </html>
- 
