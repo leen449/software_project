@@ -22,24 +22,21 @@
         <h2>Create an Account</h2>
 
         <form class="signup-form" action="signup_process.php" method="POST">
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            required
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            required
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-          />
+
+          <!-- Profile Picture Options -->
+          <div class="pic-options">
+            <img src="images/rabbit.jpg" class="option" data-pic="rabbit.jpg" />
+            <img src="images/cat.jpg" class="option" data-pic="cat.jpg" />
+            <img src="images/penguin.jpg" class="option" data-pic="penguin.jpg" />
+            <img src="images/bear.jpg" class="option" data-pic="bear.jpg" />
+          </div>
+
+          <!-- Hidden input to store the selected picture -->
+          <input type="hidden" name="selected_pic" id="selected_pic" value="rabbit.jpg" />
+
+          <input type="text" name="username" placeholder="Username" required />
+          <input type="email" name="email" placeholder="Email Address" required />
+          <input type="password" name="password" placeholder="Password" required />
 
           <button type="submit">Sign Up</button>
 
@@ -49,7 +46,6 @@
               <p class="success-message">Account created! You can log in now.</p>
           <?php endif; ?>
         </form>
-
 
         <div class="login-link">
           Already have an account? <a href="log.php">Login</a>
@@ -62,31 +58,30 @@
       <div class="footer-content">
         <div class="vision-title">OUR VISION</div>
         <div class="vision-text">
-          At StoryLense, we make rating movies simple, engaging, and accessible
-          for everyone
+          At StoryLense, we make rating movies simple, engaging, and accessible for everyone
         </div>
         <div class="copyright">&copy; StoryLense. All rights reserved.</div>
         <div class="social-icons">
           <img src="images/x-logo.png" alt="X" class="social-icon" />
-          <img
-            src="images/instagram-logo.png"
-            alt="Instagram"
-            class="social-icon"
-          />
+          <img src="images/instagram-logo.png" alt="Instagram" class="social-icon" />
         </div>
       </div>
     </footer>
 
     <script>
       const options = document.querySelectorAll(".option");
+      const hiddenInput = document.getElementById("selected_pic");
 
       options.forEach((option) => {
         option.addEventListener("click", () => {
           options.forEach((opt) => opt.classList.remove("selected"));
           option.classList.add("selected");
+
+          // Save chosen image filename
+          hiddenInput.value = option.dataset.pic;
         });
       });
     </script>
-    
+
   </body>
 </html>
