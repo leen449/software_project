@@ -1,3 +1,20 @@
+<?php
+session_start();
+require_once 'connection.php';
+
+// 1) Fetch categories
+
+// Most Popular = newest release dates
+$popular = $conn->query("SELECT * FROM movie ORDER BY releaseDate DESC LIMIT 10");
+
+// Action
+$action = $conn->query("SELECT * FROM movie WHERE genre = 'Action'");
+
+// Drama
+$drama = $conn->query("SELECT * FROM movie WHERE genre = 'Drama'");
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,6 +27,7 @@
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
+
     <!-- Header -->
     <header>
         <div class="header-content">
@@ -25,14 +43,16 @@
     <!-- Main Content -->
     <main>
 
-        <!-- Welcoming -->
+        <!-- Hero Section -->
         <section class="hero-section">
             <h1>Welcome to StoryLense 👋</h1>
             <p>Your gateway to discovering, reviewing, and rating amazing movies.</p>
             <p>Let your movie journey begin!</p>
         </section>
         
-        <!-- Most Popular  -->
+        <!-- ========================= -->
+        <!--      MOST POPULAR        -->
+        <!-- ========================= -->
         <div class="category-section">
             <div class="category-header">
                 <h2 class="category-title">Most Popular</h2>
@@ -42,219 +62,98 @@
 
                 <div class="movies-wrapper" id="trending">
 
-                    <a href="movie-details.php?id=avatar" class="movie-card">
-                        <div class="movie-poster"><img src="images/avatar poster.jpeg" alt="Avatar Poster"></div>
-                        <div class="movie-info">
-                            <div class="movie-title">Avatar</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2024</span>
-                                <span>•</span>
-                                <span class="movie-category">Sci-Fi</span>
+                    <?php while ($row = $popular->fetch_assoc()): ?>
+                        <a href="movie-details.php?id=<?= $row['movieID'] ?>" class="movie-card">
+                            <div class="movie-poster">
+                                <img src="<?= $row['posterURL'] ?>" alt="<?= $row['title'] ?> Poster">
                             </div>
-                        </div>
-                    </a>
-
-                    <a href="movie-details.php?id=la-la-land" class="movie-card">
-                        <div class="movie-poster"><img src="images/La La Land Poster.jpg" alt="La La Land Poster"></div>
-                        <div class="movie-info">
-                            <div class="movie-title">La La Land</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2016</span>
-                                <span>•</span>
-                                <span class="movie-category">Musical</span>
+                            <div class="movie-info">
+                                <div class="movie-title"><?= $row['title'] ?></div>
+                                <div class="movie-meta">
+                                    <span class="movie-year"><?= date("Y", strtotime($row['releaseDate'])) ?></span>
+                                    <span>•</span>
+                                    <span class="movie-category"><?= $row['genre'] ?></span>
+                                </div>
                             </div>
-                        </div>
-                    </a>
-
-                    <a href="movie-details.php?id=interstellar" class="movie-card">
-                        <div class="movie-poster"><img src="images/Interstellar Poster.jpg" alt="Interstellar Poster"></div>
-                        <div class="movie-info">
-                            <div class="movie-title">Interstellar</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2014</span>
-                                <span>•</span>
-                                <span class="movie-category">Sci-Fi</span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="movie-details.php?id=parasite" class="movie-card">
-                        <div class="movie-poster"> <img src="images/Parasite Poster.jpg" alt="Parasite Poster"> </div>
-                        <div class="movie-info">
-                            <div class="movie-title">Parasite</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2019</span>
-                                <span>•</span>
-                                <span class="movie-category">Thriller</span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="movie-details.php?id=inception" class="movie-card">
-                        <div class="movie-poster" > <img src="images/Inception Poster.jpg" alt="Inception Poster"></div>
-                        <div class="movie-info">
-                            <div class="movie-title">Inception</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2010</span>
-                                <span>•</span>
-                                <span class="movie-category">Mystery</span>
-                            </div>
-                        </div>
-                    </a>
+                        </a>
+                    <?php endwhile; ?>
 
                 </div>
+
                 <button class="scroll-btn scroll-btn-right" onclick="scrollMovies('trending', 1)">›</button>
             </div>
         </div>
 
-        <!-- Action -->
+        <!-- ========================= -->
+        <!--        ACTION MOVIES      -->
+        <!-- ========================= -->
         <div class="category-section">
             <div class="category-header">
                 <h2 class="category-title">Action Movies</h2>
             </div>
+
             <div class="scroll-container">
                 <button class="scroll-btn scroll-btn-left" onclick="scrollMovies('action', -1)">‹</button>
 
                 <div class="movies-wrapper" id="action">
-
-                    <a href="movie-details.php?id=superman" class="movie-card">
-                        <div class="movie-poster"> <img src="images/Superman Poster.jpg" alt="Superman Poster"> </div>
-                        <div class="movie-info">
-                            <div class="movie-title">Superman</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2025</span>
-                                <span>•</span>
-                                <span class="movie-category">Action</span>
+                
+                    <?php while ($row = $action->fetch_assoc()): ?>
+                        <a href="movie-details.php?id=<?= $row['movieID'] ?>" class="movie-card">
+                            <div class="movie-poster">
+                                <img src="<?= $row['posterURL'] ?>" alt="<?= $row['title'] ?> Poster">
                             </div>
-                        </div>
-                    </a>
-
-                    <a href="movie-details.php?id=kill-bill" class="movie-card">
-                        <div class="movie-poster"> <img src="images/Kill Bill Poster.jpg" alt="Kill Bill Poster"> </div>
-                        <div class="movie-info">
-                            <div class="movie-title">Kill Bill: Vol.1</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2003</span>
-                                <span>•</span>
-                                <span class="movie-category">Action</span>
+                            <div class="movie-info">
+                                <div class="movie-title"><?= $row['title'] ?></div>
+                                <div class="movie-meta">
+                                    <span class="movie-year"><?= date("Y", strtotime($row['releaseDate'])) ?></span>
+                                    <span>•</span>
+                                    <span class="movie-category"><?= $row['genre'] ?></span>
+                                </div>
                             </div>
-                        </div>
-                    </a>
+                        </a>
+                    <?php endwhile; ?>
 
-                    <a href="movie-details.php?id=prisoners" class="movie-card">
-                        <div class="movie-poster"> <img src="images/Prisoners Poster.jpg" alt="Prisoners Poster"> </div>
-                        <div class="movie-info">
-                            <div class="movie-title">Prisoners</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2005</span>
-                                <span>•</span>
-                                <span class="movie-category">Action</span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="movie-details.php?id=oceans-8" class="movie-card">
-                        <div class="movie-poster"> <img src="images/Ocean's 8 Poster.jpg" alt="Ocean's 8 Poster"> </div>
-                        <div class="movie-info">
-                            <div class="movie-title">Ocean's 8</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2018</span>
-                                <span>•</span>
-                                <span class="movie-category">Action</span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="movie-details.php?id=joker" class="movie-card">
-                        <div class="movie-poster"> <img src="images/Joker Poster.jpg" alt="Joker Poster"> </div>
-                        <div class="movie-info">
-                            <div class="movie-title">Joker</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2019</span>
-                                <span>•</span>
-                                <span class="movie-category">Action</span>
-                            </div>
-                        </div>
-                    </a>
                 </div>
+
                 <button class="scroll-btn scroll-btn-right" onclick="scrollMovies('action', 1)">›</button>
             </div>
         </div>
 
-        <!-- Drama -->
+        <!-- ========================= -->
+        <!--          DRAMA            -->
+        <!-- ========================= -->
         <div class="category-section">
             <div class="category-header">
                 <h2 class="category-title">Drama</h2>
             </div>
+
             <div class="scroll-container">
                 <button class="scroll-btn scroll-btn-left" onclick="scrollMovies('drama', -1)">‹</button>
 
                 <div class="movies-wrapper" id="drama">
-                    
-                    <a href="movie-details.php?id=12-angry-men" class="movie-card">
-                        <div class="movie-poster"> <img src="images/12 Angry Men Poster.jpg" alt="12 Angry Men Poster"> </div>
-                        <div class="movie-info">
-                            <div class="movie-title">12 Angry Men</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">1957</span>
-                                <span>•</span>
-                                <span class="movie-category">Drama</span>
+                
+                    <?php while ($row = $drama->fetch_assoc()): ?>
+                        <a href="movie-details.php?id=<?= $row['movieID'] ?>" class="movie-card">
+                            <div class="movie-poster">
+                                <img src="<?= $row['posterURL'] ?>" alt="<?= $row['title'] ?> Poster">
                             </div>
-                        </div>
-                    </a>
-
-                    <a href="movie-details.php?id=past-lives" class="movie-card">
-                        <div class="movie-poster"> <img src="images/Past Lives Poster.jpg" alt="Past Lives Poster"> </div>
-                        <div class="movie-info">
-                            <div class="movie-title">Past Lives</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2023</span>
-                                <span>•</span>
-                                <span class="movie-category">Drama</span>
+                            <div class="movie-info">
+                                <div class="movie-title"><?= $row['title'] ?></div>
+                                <div class="movie-meta">
+                                    <span class="movie-year"><?= date("Y", strtotime($row['releaseDate'])) ?></span>
+                                    <span>•</span>
+                                    <span class="movie-category"><?= $row['genre'] ?></span>
+                                </div>
                             </div>
-                        </div>
-                    </a>
-
-                    <a href="movie-details.php?id=whiplash" class="movie-card">
-                        <div class="movie-poster"> <img src="images/Whiplash Poster.jpg" alt="Whiplash Poster"> </div>
-                        <div class="movie-info">
-                            <div class="movie-title">Whiplash</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2014</span>
-                                <span>•</span>
-                                <span class="movie-category">Drama</span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="movie-details.php?id=good-will-hunting" class="movie-card">
-                        <div class="movie-poster"> <img src="images/Good Will Hunting Poster.jpg" alt="Good Will Hunting Poster"> </div>
-                        <div class="movie-info">
-                            <div class="movie-title">Good Will Hunting</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">1997</span>
-                                <span>•</span>
-                                <span class="movie-category">Drama</span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="movie-details.php?id=pride-and-prejudice" class="movie-card">
-                        <div class="movie-poster"> <img src="images/Pride And Prejudice Poster.jpg" alt="Pride And Prejudice Poster"> </div>
-                        <div class="movie-info">
-                            <div class="movie-title">Pride And Prejudice</div>
-                            <div class="movie-meta">
-                                <span class="movie-year">2005</span>
-                                <span>•</span>
-                                <span class="movie-category">Drama</span>
-                            </div>
-                        </div>
-                    </a>
+                        </a>
+                    <?php endwhile; ?>
 
                 </div>
+
                 <button class="scroll-btn scroll-btn-right" onclick="scrollMovies('drama', 1)">›</button>
             </div>
         </div>
+
     </main>
 
     <!-- Footer -->
@@ -275,17 +174,13 @@
     <script>
         function scrollMovies(categoryId, direction) {
             const container = document.getElementById(categoryId);
-            const scrollAmount = 300;
             container.scrollBy({
-                left: direction * scrollAmount,
+                left: direction * 300,
                 behavior: 'smooth'
             });
         }
-    </script>
 
-    <script>
         const searchBar = document.querySelector('.search-bar');
-
         searchBar.addEventListener('keypress', function (event) {
             if (event.key === 'Enter' && searchBar.value.trim() !== '') {
                 const query = encodeURIComponent(searchBar.value.trim());

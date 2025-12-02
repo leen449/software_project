@@ -22,14 +22,12 @@
         <h2>Create an Account</h2>
 
         <form class="signup-form" action="signup_process.php" method="POST">
-          <div class="pic-options">
-            <img src="images/rabbit.jpg" class="option" />
-            <img src="images/cat.jpg" class="option" />
-            <img src="images/penguin.jpg" class="option" />
-            <img src="images/bear.jpg" class="option" />
-          </div>
-
-          <input type="text" name="fullname" placeholder="Full Name" required />
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            required
+          />
           <input
             type="email"
             name="email"
@@ -42,10 +40,16 @@
             placeholder="Password"
             required
           />
-          <a href="home.php">
-            <button type="button">Sign Up</button>
-          </a>
+
+          <button type="submit">Sign Up</button>
+
+          <?php if (isset($_GET['error']) && $_GET['error'] === 'emailExists'): ?>
+              <p class="error-message">This email is already registered.</p>
+          <?php elseif (isset($_GET['success'])): ?>
+              <p class="success-message">Account created! You can log in now.</p>
+          <?php endif; ?>
         </form>
+
 
         <div class="login-link">
           Already have an account? <a href="log.php">Login</a>
