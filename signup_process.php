@@ -1,4 +1,5 @@
 <?php
+session_start(); 
 require 'connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -9,8 +10,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $username = trim($_POST['username'] ?? '');
 $email    = trim($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
+$selectedPic = $_POST['selected_pic'] ?? ''; 
 
-$selectedPic = $_POST['selected_pic'] ?? 'rabbit.jpg'; // fallback
+if ($selectedPic === '') {
+    header("Location: sign.php?error=noPic");
+    exit;
+}
 
 if ($username === '' || $email === '' || $password === '') {
     header("Location: sign.php?error=missing");
@@ -32,6 +37,16 @@ if ($exists) {
 // 2) hash password
 $hashed = password_hash($password, PASSWORD_BCRYPT);
 
+// Validate password strength
+$uppercase = preg_match('@[A-Z]@', $password);
+$lowercase = preg_match('@[a-z]@', $password);
+$number    = preg_match('@[0-9]@', $password);
+
+if (!$uppercase || !$lowercase || !$number || strlen($password) < 8) {
+    header("Location: sign.php?error=weakPassword");
+    exit;
+}
+
 // 3) insert user with chosen profile picture
 $stmt = $conn->prepare("
     INSERT INTO `user` (username, email, password, profilePicture, createdAt)
@@ -51,12 +66,9 @@ if (!$stmt->execute()) {
 $newUserId = $stmt->insert_id;
 $stmt->close();
 
-
-
-// Auto login
-$_SESSION['user_id'] = $newUserId;
+// Auto login - FIXED SESSION VARIABLE NAME
+$_SESSION['userID'] = $newUserId;  
 $_SESSION['username'] = $username;
-
 
 // 4) create shelf row for this user
 $stmt = $conn->prepare("INSERT INTO shelf (userID) VALUES (?)");
